@@ -1,0 +1,13 @@
+{
+  "warnings":  [ "no-unused" ],
+  "dependency-search-paths":  [ "." ],
+  "dependencies":  [ "clang" ],
+  "sources":  [ "examples/**" ],
+  "output": "build",
+  "targets": {
+    "basic": {
+      "type": "executable"
+    }
+  },
+  "opt": "O0"
+}

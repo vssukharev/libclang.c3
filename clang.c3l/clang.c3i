@@ -1,0 +1,9 @@
+
+module clang;
+
+def CXIndex = void*;
+
+fn CXIndex createIndex(int excludeDeclarationsFromPCH, int displayDiagnostics) @extern("clang_createIndex");
+fn void disposeIndex(CXIndex index) @extern("clang_disposeIndex");
+
+

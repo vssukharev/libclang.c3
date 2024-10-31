@@ -7,7 +7,7 @@
   "targets": {
     "main": {
       "type": "executable",
-      "sources": "examples/main.c3",
+      "sources": [ "examples/main.c3" ],
     }
   },
   "opt": "O0"

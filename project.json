@@ -5,8 +5,9 @@
   "sources":  [ "examples/**" ],
   "output": "build",
   "targets": {
-    "basic": {
-      "type": "executable"
+    "main": {
+      "type": "executable",
+      "sources": "examples/main.c3",
     }
   },
   "opt": "O0"

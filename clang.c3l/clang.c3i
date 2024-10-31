@@ -457,20 +457,24 @@ distinct CXDiagnosticSeverity = CInt;
  * option.
  */
 const CXDiagnosticSeverity DIAGNOSTIC_IGNORED = 0;
+
 /**
  * This diagnostic is a note that should be attached to the
  * previous (non-note) diagnostic.
  */
 const CXDiagnosticSeverity DIAGNOSTIC_NOTE = 1;
+
 /**
  * This diagnostic indicates suspicious code that may not be
  * wrong.
  */
 const CXDiagnosticSeverity DIAGNOSTIC_WARNING = 2;
+
 /**
  * This diagnostic indicates that the code is ill-formed.
  */
 const CXDiagnosticSeverity DIAGNOSTIC_ERROR = 3;
+
 /**
  * This diagnostic indicates that the code is ill-formed such
  * that future parser recovery is unlikely to produce useful
@@ -551,13 +555,18 @@ const CXLoadDiag_Error LOAD_DIAG_INVALID_FILE = 3;
  * \returns A loaded CXDiagnosticSet if successful, and NULL otherwise.  These
  * diagnostics should be released using clang_disposeDiagnosticSet().
  */
-fn CXDiagnosticSet clang_loadDiagnostics(
-    const char *file, enum CXLoadDiag_Error *error, CXString *errorString);
+fn CXDiagnosticSet loadDiagnostics(
+  ZString file, 
+  CXLoadDiag_Error* error, 
+  CXString* errorString) 
+@extern("clang_loadDiagnostics");
 
 /**
  * Release a CXDiagnosticSet and all of its contained diagnostics.
  */
-fn void clang_disposeDiagnosticSet(CXDiagnosticSet Diags);
+fn void disposeDiagnosticSet(
+  CXDiagnosticSet diags) 
+@extern("clang_disposeDiagnosticSet");
 
 /**
  * Retrieve the child diagnostics of a CXDiagnostic.
@@ -565,12 +574,16 @@ fn void clang_disposeDiagnosticSet(CXDiagnosticSet Diags);
  * This CXDiagnosticSet does not need to be released by
  * clang_disposeDiagnosticSet.
  */
-fn CXDiagnosticSet clang_getChildDiagnostics(CXDiagnostic D);
+fn CXDiagnosticSet getChildDiagnostics(
+  CXDiagnostic d) 
+@extern("clang_getChildDiagnostics");
 
 /**
  * Destroy a diagnostic.
  */
-fn void clang_disposeDiagnostic(CXDiagnostic Diagnostic);
+fn void disposeDiagnostic(
+  CXDiagnostic diagnostic) 
+@extern("clang_disposeDiagnostic");
 
 /**
  * Options to control the display of diagnostics.
@@ -578,67 +591,67 @@ fn void clang_disposeDiagnostic(CXDiagnostic Diagnostic);
  * The values in this enum are meant to be combined to customize the
  * behavior of \c clang_formatDiagnostic().
  */
-enum CXDiagnosticDisplayOptions {
-  /**
-   * Display the source-location information where the
-   * diagnostic was located.
-   *
-   * When set, diagnostics will be prefixed by the file, line, and
-   * (optionally) column to which the diagnostic refers. For example,
-   *
-   * \code
-   * test.c:28: warning: extra tokens at end of #endif directive
-   * \endcode
-   *
-   * This option corresponds to the clang flag \c -fshow-source-location.
-   */
-  CXDiagnostic_DisplaySourceLocation = 0x01,
+distinct CXDiagnosticDisplayOptions = CInt;
 
-  /**
-   * If displaying the source-location information of the
-   * diagnostic, also include the column number.
-   *
-   * This option corresponds to the clang flag \c -fshow-column.
-   */
-  CXDiagnostic_DisplayColumn = 0x02,
+/**
+ * Display the source-location information where the
+ * diagnostic was located.
+ *
+ * When set, diagnostics will be prefixed by the file, line, and
+ * (optionally) column to which the diagnostic refers. For example,
+ *
+ * \code
+ * test.c:28: warning: extra tokens at end of #endif directive
+ * \endcode
+ *
+ * This option corresponds to the clang flag \c -fshow-source-location.
+ */
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_SOURCE_LOCATION = 0x01;
 
-  /**
-   * If displaying the source-location information of the
-   * diagnostic, also include information about source ranges in a
-   * machine-parsable format.
-   *
-   * This option corresponds to the clang flag
-   * \c -fdiagnostics-print-source-range-info.
-   */
-  CXDiagnostic_DisplaySourceRanges = 0x04,
+/**
+ * If displaying the source-location information of the
+ * diagnostic, also include the column number.
+ *
+ * This option corresponds to the clang flag \c -fshow-column.
+ */
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_COLUMN = 0x02;
 
-  /**
-   * Display the option name associated with this diagnostic, if any.
-   *
-   * The option name displayed (e.g., -Wconversion) will be placed in brackets
-   * after the diagnostic text. This option corresponds to the clang flag
-   * \c -fdiagnostics-show-option.
-   */
-  CXDiagnostic_DisplayOption = 0x08,
+/**
+ * If displaying the source-location information of the
+ * diagnostic, also include information about source ranges in a
+ * machine-parsable format.
+ *
+ * This option corresponds to the clang flag
+ * \c -fdiagnostics-print-source-range-info.
+ */
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAYSOURCERANGES = 0x04;
 
-  /**
-   * Display the category number associated with this diagnostic, if any.
-   *
-   * The category number is displayed within brackets after the diagnostic text.
-   * This option corresponds to the clang flag
-   * \c -fdiagnostics-show-category=id.
-   */
-  CXDiagnostic_DisplayCategoryId = 0x10,
+/**
+ * Display the option name associated with this diagnostic, if any.
+ *
+ * The option name displayed (e.g., -Wconversion) will be placed in brackets
+ * after the diagnostic text. This option corresponds to the clang flag
+ * \c -fdiagnostics-show-option.
+ */
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_OPTION = 0x08;
 
-  /**
-   * Display the category name associated with this diagnostic, if any.
-   *
-   * The category name is displayed within brackets after the diagnostic text.
-   * This option corresponds to the clang flag
-   * \c -fdiagnostics-show-category=name.
-   */
-  CXDiagnostic_DisplayCategoryName = 0x20
-};
+/**
+ * Display the category number associated with this diagnostic, if any.
+ *
+ * The category number is displayed within brackets after the diagnostic text.
+ * This option corresponds to the clang flag
+ * \c -fdiagnostics-show-category=id.
+ */
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_CATEGORY_ID = 0x10;
+
+/**
+ * Display the category name associated with this diagnostic, if any.
+ *
+ * The category name is displayed within brackets after the diagnostic text.
+ * This option corresponds to the clang flag
+ * \c -fdiagnostics-show-category=name.
+ */
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_CATEGORY_NAME = 0x2;
 
 /**
  * Format the given diagnostic in a manner that is suitable for display.
@@ -655,8 +668,10 @@ enum CXDiagnosticDisplayOptions {
  *
  * \returns A new string containing for formatted diagnostic.
  */
-fn CXString clang_formatDiagnostic(CXDiagnostic Diagnostic,
-                                               CUInt Options);
+fn CXString formatDiagnostic(
+  CXDiagnostic diagnostic, 
+  CUInt options) 
+@extern("clang_formatDiagnostic");
 
 /**
  * Retrieve the set of display options most similar to the
@@ -665,13 +680,15 @@ fn CXString clang_formatDiagnostic(CXDiagnostic Diagnostic,
  * \returns A set of display options suitable for use with \c
  * clang_formatDiagnostic().
  */
-fn CUInt clang_defaultDiagnosticDisplayOptions(void);
+fn CUInt defaultDiagnosticDisplayOptions() 
+@extern("clang_defaultDiagnosticDisplayOptions");
 
 /**
  * Determine the severity of the given diagnostic.
  */
-fn enum CXDiagnosticSeverity
-    clang_getDiagnosticSeverity(CXDiagnostic);
+fn CXDiagnosticSeverity getDiagnosticSeverity(
+  CXDiagnostic d) 
+@extern("clang_getDiagnosticSeverity");
 
 /**
  * Retrieve the source location of the given diagnostic.
@@ -679,12 +696,16 @@ fn enum CXDiagnosticSeverity
  * This location is where Clang would print the caret ('^') when
  * displaying the diagnostic on the command line.
  */
-fn CXSourceLocation clang_getDiagnosticLocation(CXDiagnostic);
+fn CXSourceLocation getDiagnosticLocation(
+  CXDiagnostic d) 
+@extern("clang_getDiagnosticLocation");
 
 /**
  * Retrieve the text of the given diagnostic.
  */
-fn CXString clang_getDiagnosticSpelling(CXDiagnostic);
+fn CXString getDiagnosticSpelling(
+  CXDiagnostic d) 
+@extern("clang_getDiagnosticSpelling");
 
 /**
  * Retrieve the name of the command-line option that enabled this
@@ -698,8 +719,10 @@ fn CXString clang_getDiagnosticSpelling(CXDiagnostic);
  * \returns A string that contains the command-line option used to enable this
  * warning, such as "-Wconversion" or "-pedantic".
  */
-fn CXString clang_getDiagnosticOption(CXDiagnostic Diag,
-                                                  CXString *Disable);
+fn CXString getDiagnosticOption(
+  CXDiagnostic diag, 
+  CXString* disable) 
+@extern("clang_getDiagnosticOption");
 
 /**
  * Retrieve the category number for this diagnostic.
@@ -711,7 +734,9 @@ fn CXString clang_getDiagnosticOption(CXDiagnostic Diag,
  * \returns The number of the category that contains this diagnostic, or zero
  * if this diagnostic is uncategorized.
  */
-fn CUInt clang_getDiagnosticCategory(CXDiagnostic);
+fn CUInt getDiagnosticCategory(
+  CXDiagnostic d) 
+@extern("clang_getDiagnosticCategory");
 
 /**
  * Retrieve the name of a particular diagnostic category.  This
@@ -723,21 +748,27 @@ fn CUInt clang_getDiagnosticCategory(CXDiagnostic);
  *
  * \returns The name of the given diagnostic category.
  */
-CINDEX_DEPRECATED fn CXString
-clang_getDiagnosticCategoryName(CUInt Category);
+fn CXString getDiagnosticCategoryName(
+  CUInt category) 
+@extern("clang_getDiagnosticCategoryName") 
+@deprecated("Use clang_getDiagnosticCategoryText()");
 
 /**
  * Retrieve the diagnostic category text for a given diagnostic.
  *
  * \returns The text of the given diagnostic category.
  */
-fn CXString clang_getDiagnosticCategoryText(CXDiagnostic);
+fn CXString getDiagnosticCategoryText(
+  CXDiagnostic d) 
+@extern("clang_getDiagnosticCategoryText");
 
 /**
  * Determine the number of source ranges associated with the given
  * diagnostic.
  */
-fn CUInt clang_getDiagnosticNumRanges(CXDiagnostic);
+fn CUInt getDiagnosticNumRanges(
+  CXDiagnostic d) 
+@extern("clang_getDiagnosticNumRanges");
 
 /**
  * Retrieve a source range associated with the diagnostic.
@@ -752,14 +783,18 @@ fn CUInt clang_getDiagnosticNumRanges(CXDiagnostic);
  *
  * \returns the requested source range.
  */
-fn CXSourceRange clang_getDiagnosticRange(CXDiagnostic Diagnostic,
-                                                      CUInt Range);
+fn CXSourceRange getDiagnosticRange(
+  CXDiagnostic diagnostic, 
+  CUInt range) 
+@extern("clang_getDiagnosticRange");
 
 /**
  * Determine the number of fix-it hints associated with the
  * given diagnostic.
  */
-fn CUInt clang_getDiagnosticNumFixIts(CXDiagnostic Diagnostic);
+fn CUInt getDiagnosticNumFixIts(
+  CXDiagnostic diagnostic) 
+@extern("clang_getDiagnosticNumFixIts");
 
 /**
  * Retrieve the replacement information for a given fix-it.
@@ -786,8 +821,11 @@ fn CUInt clang_getDiagnosticNumFixIts(CXDiagnostic Diagnostic);
  * \returns A string containing text that should be replace the source
  * code indicated by the \c ReplacementRange.
  */
-fn CXString clang_getDiagnosticFixIt(
-    CXDiagnostic Diagnostic, CUInt FixIt, CXSourceRange *ReplacementRange);
+fn CXString getDiagnosticFixIt(
+  CXDiagnostic diagnostic, 
+  CUInt fix_it, 
+  CXSourceRange* replacement_range) 
+@extern("clang_getDiagnosticFixIt");
 
 
 /*-------------------------------*\

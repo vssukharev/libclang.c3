@@ -833,6 +833,167 @@ fn CXString getDiagnosticFixIt(
 
 /*-------------------------------*\
 |                                 |
+|  File CXCompilationDatabase.h   |
+|                                 |
+\*-------------------------------*/
+
+/**
+ * A compilation database holds all information used to compile files in a
+ * project. For each file in the database, it can be queried for the working
+ * directory or the command line used for the compiler invocation.
+ *
+ * Must be freed by \c clang_CompilationDatabase_dispose
+ */
+distinct CXCompilationDatabase = inline void*;
+
+/**
+ * Contains the results of a search in the compilation database
+ *
+ * When searching for the compile command for a file, the compilation db can
+ * return several commands, as the file may have been compiled with
+ * different options in different places of the project. This choice of compile
+ * commands is wrapped in this opaque data structure. It must be freed by
+ * \c clang_CompileCommands_dispose.
+ */
+distinct CXCompileCommands = inline void*;
+
+/**
+ * Represents the command line invocation to compile a specific file.
+ */
+distinct CXCompileCommand = inline void*;
+
+/**
+ * Error codes for Compilation Database
+ */
+distinct CXCompilationDatabase_Error = inline CInt;
+
+/*
+ * No error occurred
+ */
+const CXCompilationDatabase_Error COMPILATION_DATABASE_NO_ERROR = 0;
+/*
+ * Database can not be loaded
+ */
+const CXCompilationDatabase_Error COMPILATION_DATABASE_CAN_NOT_LOAD_DATA_BASE = 1;
+
+/**
+ * Creates a compilation database from the database found in directory
+ * buildDir. For example, CMake can output a compile_commands.json which can
+ * be used to build the database.
+ *
+ * It must be freed by \c clang_CompilationDatabase_dispose.
+ */
+fn CXCompilationDatabase fromDirectoryCompilationDatabase(
+  ZString build_dir, 
+  CXCompilationDatabase_Error* error_code) 
+@extern("clang_CompilationDatabase_fromDirectory");
+
+/**
+ * Free the given compilation database
+ */
+fn void CXCompilationDatabase.dispose(
+  CXCompilationDatabase database) 
+@extern("clang_CompilationDatabase_dispose");
+
+/**
+ * Find the compile commands used for a file. The compile commands
+ * must be freed by \c clang_CompileCommands_dispose.
+ */
+fn CXCompileCommands CXCompilationDatabase.getCompileCommands(
+  CXCompilationDatabase database, 
+  ZString complete_fileName) 
+@extern("clang_CompilationDatabase_getCompileCommands");
+
+/**
+ * Get all the compile commands in the given compilation database.
+ */
+fn CXCompileCommands CXCompilationDatabase.getAllCompileCommands(
+  CXCompilationDatabase database) 
+@extern("clang_CompilationDatabase_getAllCompileCommands");
+
+/**
+ * Free the given CompileCommands
+ */
+fn void CXCompileCommands.dispose(
+  CXCompileCommands commands) 
+@extern("clang_CompileCommands_dispose");
+
+/**
+ * Get the number of CompileCommand we have for a file
+ */
+fn CUInt CXCompileCommands.getSize(
+  CXCompileCommands commands) 
+@extern("clang_CompileCommands_getSize");
+
+/**
+ * Get the I'th CompileCommand for a file
+ *
+ * Note : 0 <= i < clang_CompileCommands_getSize(CXCompileCommands)
+ */
+fn CXCompileCommand CXCompileCommands.getCommand(
+  CXCompileCommands commands, 
+  CUInt i) 
+@extern("clang_CompileCommands_getCommand");
+
+/**
+ * Get the working directory where the CompileCommand was executed from
+ */
+fn CXString CXCompileCommand.getDirectory(
+  CXCompileCommand command) 
+@extern("clang_CompileCommand_getDirectory");
+
+/**
+ * Get the filename associated with the CompileCommand.
+ */
+fn CXString CXCompileCommand.getFilename(
+  CXCompileCommand command) 
+@extern("clang_CompileCommand_getFilename");
+
+/**
+ * Get the number of arguments in the compiler invocation.
+ *
+ */
+fn CUInt CXCompileCommand.getNumArgs(
+  CXCompileCommand command) 
+@extern("clang_CompileCommand_getNumArgs");
+
+/**
+ * Get the I'th argument value in the compiler invocations
+ *
+ * Invariant :
+ *  - argument 0 is the compiler executable
+ */
+fn CXString CXCompileCommand.getArg(
+  CXCompileCommand command, 
+  CUInt i) 
+@extern("clang_CompileCommand_getArg");
+
+/**
+ * Get the number of source mappings for the compiler invocation.
+ */
+fn CUInt CXCompileCommand.getNumMappedSources(
+  CXCompileCommand command) 
+@extern("clang_CompileCommand_getNumMappedSources");
+
+/**
+ * Get the I'th mapped source path for the compiler invocation.
+ */
+fn CXString CXCompileCommand.getMappedSourcePath(
+  CXCompileCommand command, 
+  CUInt i) 
+@extern("clang_CompileCommand_getMappedSourcePath");
+
+/**
+ * Get the I'th mapped source content for the compiler invocation.
+ */
+fn CXString CXCompileCommand.getMappedSourceContent(
+  CXCompileCommand command, 
+  CUInt i) 
+@extern("clang_CompileCommand_getMappedSourceContent");
+
+
+/*-------------------------------*\
+|                                 |
 |          File Index.h           |
 |                                 |
 \*-------------------------------*/

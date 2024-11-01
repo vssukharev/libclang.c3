@@ -4,3 +4,5 @@ struct Foo {
   int* bar_ptr;
 };
 
+void f(int, double);
+

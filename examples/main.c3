@@ -1,4 +1,6 @@
 
+module main;
+
 import clang;
 import std::io;
 

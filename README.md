@@ -15,6 +15,6 @@
   - `unsigned` -> `uint`
   - `size_t` -> `usz`
 5. All enumerations are replaced with a set of `const` values and enumeration types themselves are `distinct`s for their underlying types. Their members are uppercased and got rid of library prefix. For example `enum CXGlobalOptFlags : int` -> `distint CXGlobalOptFlags = int` and `CXGlobalOpt_None` -> `GLOBAL_OPT_NONE`.
-6. All functions, also prefixed with type names are converted to methods for these types. For example: `CINDEX_LINKAGE void clang_CXIndex_setGlobalOptions(CXIndex, unsigned options);` -> `fn void CXIndex.setGlobalOptions(self, uint options) @extern("clang_CXIndex_setGlobalOptions");`
+6. All functions, also prefixed with type names are converted to methods for these types. For example: `CINDEX_LINKAGE void clang_CXIndex_setGlobalOptions(CXIndex, unsigned options);` -> `fn void CXIndex.setGlobalOptions(self, uint options) @extern("clang_CXIndex_setGlobalOptions");`. The ones cannot be converted (like `CXXConstructor_isCopyConstructor`) have the first word moved to the end (to `isCopyConstructorCXXConstructor`). If first parameter isn't the same type as methods' one, parameter of this type is placed as first one. For example: `fn CUInt CXModule.getNumTopLevelHeaders(CXTranslationUnit tu, CXModule mod)` -> `fn CUInt CXModule.getNumTopLevelHeaders(CXModule mod, CXTranslationUnit tu)`.
 7. All functions, marked `CINDEX_DEPRECATED` are marked `@deprecated`
 

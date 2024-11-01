@@ -6425,7 +6425,7 @@ const CXCodeComplete_Flags CODE_COMPLETE_SKIP_PREAMBLE = 0x08;
  * Whether to include completions with small
  * fix-its, e.g. change '.' to '->' on member access, etc.
  */
-const CXCodeComplete_Flags CODE_COMPLETE_INCLUDE_COMPLETION_SWITH_FIX_ITS = 0x1;
+const CXCodeComplete_Flags CODE_COMPLETE_INCLUDE_COMPLETION_SWITH_FIX_ITS = 0x10;
 
 /**
  * Bits that represent the context under which completion is occurring.
@@ -6433,1299 +6433,1461 @@ const CXCodeComplete_Flags CODE_COMPLETE_INCLUDE_COMPLETION_SWITH_FIX_ITS = 0x1;
  * The enumerators in this enumeration may be bitwise-OR'd together if multiple
  * contexts are occurring simultaneously.
  */
-enum CXCompletionContext {
-  /**
-   * The context for completions is unexposed, as only Clang results
-   * should be included. (This is equivalent to having no context bits set.)
-   */
-  CXCompletionContext_Unexposed = 0,
+distinct CXCompletionContext = inline CInt;
 
-  /**
-   * Completions for any possible type should be included in the results.
-   */
-  CXCompletionContext_AnyType = 1 << 0,
+/**
+ * The context for completions is unexposed, as only Clang results
+ * should be included. (This is equivalent to having no context bits set.)
+ */
+const CXCompletionContext COMPLETION_CONTEXT_UNEXPOSED = 0;
+/**
+ * Completions for any possible type should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_ANY_TYPE = 1 << 0;
+/**
+ * Completions for any possible value (variables, function calls, etc.)
+ * should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_ANY_VALUE = 1 << 1;
+/**
+ * Completions for values that resolve to an Objective-C object should
+ * be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_OBJECT_VALUE = 1 << 2;
+/**
+ * Completions for values that resolve to an Objective-C selector
+ * should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_SELECT_OR_VALUE = 1 << 3;
+/**
+ * Completions for values that resolve to a C++ class type should be
+ * included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_CXX_CLASS_TYPE_VALUE = 1 << 4;
+/**
+ * Completions for fields of the member being accessed using the dot
+ * operator should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_DOT_MEMBER_ACCESS = 1 << 5;
+/**
+ * Completions for fields of the member being accessed using the arrow
+ * operator should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_ARROW_MEMBER_ACCESS = 1 << 6;
+/**
+ * Completions for properties of the Objective-C object being accessed
+ * using the dot operator should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_PROPERTY_ACCESS = 1 << 7;
+/**
+ * Completions for enum tags should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_ENUM_TAG = 1 << 8;
+/**
+ * Completions for union tags should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_UNION_TAG = 1 << 9;
+/**
+ * Completions for struct tags should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_STRUCT_TAG = 1 << 10;
 
-  /**
-   * Completions for any possible value (variables, function calls, etc.)
-   * should be included in the results.
-   */
-  CXCompletionContext_AnyValue = 1 << 1,
-  /**
-   * Completions for values that resolve to an Objective-C object should
-   * be included in the results.
-   */
-  CXCompletionContext_ObjCObjectValue = 1 << 2,
-  /**
-   * Completions for values that resolve to an Objective-C selector
-   * should be included in the results.
-   */
-  CXCompletionContext_ObjCSelectorValue = 1 << 3,
-  /**
-   * Completions for values that resolve to a C++ class type should be
-   * included in the results.
-   */
-  CXCompletionContext_CXXClassTypeValue = 1 << 4,
+/**
+ * Completions for C++ class names should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_CLASS_TAG = 1 << 11;
+/**
+ * Completions for C++ namespaces and namespace aliases should be
+ * included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_NAMESPACE = 1 << 12;
+/**
+ * Completions for C++ nested name specifiers should be included in
+ * the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_NESTED_NAME_SPECIFIER = 1 << 13;
+/**
+ * Completions for Objective-C interfaces (classes) should be included
+ * in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_INTERFACE = 1 << 14;
+/**
+ * Completions for Objective-C protocols should be included in
+ * the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_PROTOCOL = 1 << 15;
+/**
+ * Completions for Objective-C categories should be included in
+ * the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_CATEGORY = 1 << 16;
+/**
+ * Completions for Objective-C instance messages should be included
+ * in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_INSTANCE_MESSAGE = 1 << 17;
+/**
+ * Completions for Objective-C class messages should be included in
+ * the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_CLASS_MESSAGE = 1 << 18;
+/**
+ * Completions for Objective-C selector names should be included in
+ * the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_OBJC_SELECTOR_NAME = 1 << 19;
+/**
+ * Completions for preprocessor macro names should be included in
+ * the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_MACRO_NAME = 1 << 20;
+/**
+ * Natural language completions should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_NATURAL_LANGUAGE = 1 << 21;
+/**
+ * #include file completions should be included in the results.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_INCLUDED_FILE = 1 << 22;
+/**
+ * The current context is unknown, so set all contexts.
+ */
+const CXCompletionContext COMPLETION_CONTEXT_UNKNOWN = ((1 << 23) - 1);
 
-  /**
-   * Completions for fields of the member being accessed using the dot
-   * operator should be included in the results.
-   */
-  CXCompletionContext_DotMemberAccess = 1 << 5,
-  /**
-   * Completions for fields of the member being accessed using the arrow
-   * operator should be included in the results.
-   */
-  CXCompletionContext_ArrowMemberAccess = 1 << 6,
-  /**
-   * Completions for properties of the Objective-C object being accessed
-   * using the dot operator should be included in the results.
-   */
-  CXCompletionContext_ObjCPropertyAccess = 1 << 7,
+/**
+ * Returns a default set of code-completion options that can be
+ * passed to\c clang_codeCompleteAt().
+ */
+fn CUInt defaultCodeCompleteOptions() 
+@extern("clang_defaultCodeCompleteOptions");
 
-  /**
-   * Completions for enum tags should be included in the results.
-   */
-  CXCompletionContext_EnumTag = 1 << 8,
-  /**
-   * Completions for union tags should be included in the results.
-   */
-  CXCompletionContext_UnionTag = 1 << 9,
-  /**
-   * Completions for struct tags should be included in the results.
-   */
-  CXCompletionContext_StructTag = 1 << 10,
+/**
+ * Perform code completion at a given location in a translation unit.
+ *
+ * This function performs code completion at a particular file, line, and
+ * column within source code, providing results that suggest potential
+ * code snippets based on the context of the completion. The basic model
+ * for code completion is that Clang will parse a complete source file,
+ * performing syntax checking up to the location where code-completion has
+ * been requested. At that point, a special code-completion token is passed
+ * to the parser, which recognizes this token and determines, based on the
+ * current location in the C/Objective-C/C++ grammar and the state of
+ * semantic analysis, what completions to provide. These completions are
+ * returned via a new \c CXCodeCompleteResults structure.
+ *
+ * Code completion itself is meant to be triggered by the client when the
+ * user types punctuation characters or whitespace, at which poCInt the
+ * code-completion location will coincide with the cursor. For example, if \c p
+ * is a pointer, code-completion might be triggered after the "-" and then
+ * after the ">" in \c p->. When the code-completion location is after the ">",
+ * the completion results will provide, e.g., the members of the struct that
+ * "p" points to. The client is responsible for placing the cursor at the
+ * beginning of the token currently being typed, then filtering the results
+ * based on the contents of the token. For example, when code-completing for
+ * the expression \c p->get, the client should provide the location just after
+ * the ">" (e.g., pointing at the "g") to this code-completion hook. Then, the
+ * client can filter the results based on the current token text ("get"), only
+ * showing those results that start with "get". The intent of this interface
+ * is to separate the relatively high-latency acquisition of code-completion
+ * results from the filtering of results on a per-character basis, which must
+ * have a lower latency.
+ *
+ * \param TU The translation unit in which code-completion should
+ * occur. The source files for this translation unit need not be
+ * completely up-to-date (and the contents of those source files may
+ * be overridden via \p unsaved_files). Cursors referring into the
+ * translation unit may be invalidated by this invocation.
+ *
+ * \param complete_filename The name of the source file where code
+ * completion should be performed. This filename may be any file
+ * included in the translation unit.
+ *
+ * \param complete_line The line at which code-completion should occur.
+ *
+ * \param complete_column The column at which code-completion should occur.
+ * Note that the column should poCInt just after the syntactic construct that
+ * initiated code completion, and not in the middle of a lexical token.
+ *
+ * \param unsaved_files the Files that have not yet been saved to disk
+ * but may be required for parsing or code completion, including the
+ * contents of those files.  The contents and name of these files (as
+ * specified by CXUnsavedFile) are copied when necessary, so the
+ * client only needs to guarantee their validity until the call to
+ * this function returns.
+ *
+ * \param num_unsaved_files The number of unsaved file entries in \p
+ * unsaved_files.
+ *
+ * \param options Extra options that control the behavior of code
+ * completion, expressed as a bitwise OR of the enumerators of the
+ * CXCodeComplete_Flags enumeration. The
+ * \c clang_defaultCodeCompleteOptions() function returns a default set
+ * of code-completion options.
+ *
+ * \returns If successful, a new \c CXCodeCompleteResults structure
+ * containing code-completion results, which should eventually be
+ * freed with \c clang_disposeCodeCompleteResults(). If code
+ * completion fails, returns NULL.
+ */
+fn CXCodeCompleteResults* codeCompleteAt(
+  CXTranslationUnit tu, 
+  ZString complete_filename, 
+  CUInt complete_line, 
+  CUInt complete_column, 
+  CXUnsavedFile* unsaved_files, 
+  CUInt num_unsaved_files, 
+  CUInt options) 
+@extern("clang_codeCompleteAt");
 
-  /**
-   * Completions for C++ class names should be included in the results.
-   */
-  CXCompletionContext_ClassTag = 1 << 11,
-  /**
-   * Completions for C++ namespaces and namespace aliases should be
-   * included in the results.
-   */
-  CXCompletionContext_Namespace = 1 << 12,
-  /**
-   * Completions for C++ nested name specifiers should be included in
-   * the results.
-   */
-  CXCompletionContext_NestedNameSpecifier = 1 << 13,
+/**
+ * Sort the code-completion results in case-insensitive alphabetical
+ * order.
+ *
+ * \param Results The set of results to sort.
+ * \param NumResults The number of results in \p Results.
+ */
+fn void sortCodeCompletionResults(
+  CXCompletionResult* results, 
+  CUInt num_results) 
+@extern("clang_sortCodeCompletionResults");
 
-  /**
-   * Completions for Objective-C interfaces (classes) should be included
-   * in the results.
-   */
-  CXCompletionContext_ObjCInterface = 1 << 14,
-  /**
-   * Completions for Objective-C protocols should be included in
-   * the results.
-   */
-  CXCompletionContext_ObjCProtocol = 1 << 15,
-  /**
-   * Completions for Objective-C categories should be included in
-   * the results.
-   */
-  CXCompletionContext_ObjCCategory = 1 << 16,
-  /**
-   * Completions for Objective-C instance messages should be included
-   * in the results.
-   */
-  CXCompletionContext_ObjCInstanceMessage = 1 << 17,
-  /**
-   * Completions for Objective-C class messages should be included in
-   * the results.
-   */
-  CXCompletionContext_ObjCClassMessage = 1 << 18,
-  /**
-   * Completions for Objective-C selector names should be included in
-   * the results.
-   */
-  CXCompletionContext_ObjCSelectorName = 1 << 19,
+/**
+ * Free the given set of code-completion results.
+ */
+fn void disposeCodeCompleteResults(
+  CXCodeCompleteResults *results) 
+@extern("clang_disposeCodeCompleteResults");
 
-  /**
-   * Completions for preprocessor macro names should be included in
-   * the results.
-   */
-  CXCompletionContext_MacroName = 1 << 20,
+/**
+ * Determine the number of diagnostics produced prior to the
+ * location where code completion was performed.
+ */
+fn CUInt codeCompleteGetNumDiagnostics(
+  CXCodeCompleteResults* results) 
+@extern("clang_codeCompleteGetNumDiagnostics");
 
-  /**
-   * Natural language completions should be included in the results.
-   */
-  CXCompletionContext_NaturalLanguage = 1 << 21,
+/**
+ * Retrieve a diagnostic associated with the given code completion.
+ *
+ * \param Results the code completion results to query.
+ * \param Index the zero-based diagnostic number to retrieve.
+ *
+ * \returns the requested diagnostic. This diagnostic must be freed
+ * via a call to \c clang_disposeDiagnostic().
+ */
+fn CXDiagnostic codeCompleteGetDiagnostic(
+  CXCodeCompleteResults* results, 
+  CUInt index) 
+@extern("clang_codeCompleteGetDiagnostic");
 
-  /**
-   * #include file completions should be included in the results.
-   */
-  CXCompletionContext_IncludedFile = 1 << 22,
+/**
+ * Determines what completions are appropriate for the context
+ * the given code completion.
+ *
+ * \param Results the code completion results to query
+ *
+ * \returns the kinds of completions that are appropriate for use
+ * along with the given code completion results.
+ */
+fn CULongLong codeCompleteGetContexts(
+  CXCodeCompleteResults* results) 
+@extern("clang_codeCompleteGetContexts");
 
-  /**
-   * The current context is unknown, so set all contexts.
-   */
-  CXCompletionContext_Unknown = ((1 << 23) - 1)
-};
+/**
+ * Returns the cursor kind for the container for the current code
+ * completion context. The container is only guaranteed to be set for
+ * contexts where a container exists (i.e. member accesses or Objective-C
+ * message sends); if there is not a container, this function will return
+ * CXCursor_InvalidCode.
+ *
+ * \param Results the code completion results to query
+ *
+ * \param IsIncomplete on return, this value will be false if Clang has complete
+ * information about the container. If Clang does not have complete
+ * information, this value will be true.
+ *
+ * \returns the container kind, or CXCursor_InvalidCode if there is not a
+ * container
+ */
+fn CXCursorKind codeCompleteGetContainerKind(
+  CXCodeCompleteResults* results, 
+  CUInt* is_incomplete) 
+@extern("clang_codeCompleteGetContainerKind");
 
-// /**
-//  * Returns a default set of code-completion options that can be
-//  * passed to\c clang_codeCompleteAt().
-//  */
-// fn CUInt clang_defaultCodeCompleteOptions(void);
-//
-// /**
-//  * Perform code completion at a given location in a translation unit.
-//  *
-//  * This function performs code completion at a particular file, line, and
-//  * column within source code, providing results that suggest potential
-//  * code snippets based on the context of the completion. The basic model
-//  * for code completion is that Clang will parse a complete source file,
-//  * performing syntax checking up to the location where code-completion has
-//  * been requested. At that point, a special code-completion token is passed
-//  * to the parser, which recognizes this token and determines, based on the
-//  * current location in the C/Objective-C/C++ grammar and the state of
-//  * semantic analysis, what completions to provide. These completions are
-//  * returned via a new \c CXCodeCompleteResults structure.
-//  *
-//  * Code completion itself is meant to be triggered by the client when the
-//  * user types punctuation characters or whitespace, at which poCInt the
-//  * code-completion location will coincide with the cursor. For example, if \c p
-//  * is a pointer, code-completion might be triggered after the "-" and then
-//  * after the ">" in \c p->. When the code-completion location is after the ">",
-//  * the completion results will provide, e.g., the members of the struct that
-//  * "p" points to. The client is responsible for placing the cursor at the
-//  * beginning of the token currently being typed, then filtering the results
-//  * based on the contents of the token. For example, when code-completing for
-//  * the expression \c p->get, the client should provide the location just after
-//  * the ">" (e.g., pointing at the "g") to this code-completion hook. Then, the
-//  * client can filter the results based on the current token text ("get"), only
-//  * showing those results that start with "get". The intent of this interface
-//  * is to separate the relatively high-latency acquisition of code-completion
-//  * results from the filtering of results on a per-character basis, which must
-//  * have a lower latency.
-//  *
-//  * \param TU The translation unit in which code-completion should
-//  * occur. The source files for this translation unit need not be
-//  * completely up-to-date (and the contents of those source files may
-//  * be overridden via \p unsaved_files). Cursors referring into the
-//  * translation unit may be invalidated by this invocation.
-//  *
-//  * \param complete_filename The name of the source file where code
-//  * completion should be performed. This filename may be any file
-//  * included in the translation unit.
-//  *
-//  * \param complete_line The line at which code-completion should occur.
-//  *
-//  * \param complete_column The column at which code-completion should occur.
-//  * Note that the column should poCInt just after the syntactic construct that
-//  * initiated code completion, and not in the middle of a lexical token.
-//  *
-//  * \param unsaved_files the Files that have not yet been saved to disk
-//  * but may be required for parsing or code completion, including the
-//  * contents of those files.  The contents and name of these files (as
-//  * specified by CXUnsavedFile) are copied when necessary, so the
-//  * client only needs to guarantee their validity until the call to
-//  * this function returns.
-//  *
-//  * \param num_unsaved_files The number of unsaved file entries in \p
-//  * unsaved_files.
-//  *
-//  * \param options Extra options that control the behavior of code
-//  * completion, expressed as a bitwise OR of the enumerators of the
-//  * CXCodeComplete_Flags enumeration. The
-//  * \c clang_defaultCodeCompleteOptions() function returns a default set
-//  * of code-completion options.
-//  *
-//  * \returns If successful, a new \c CXCodeCompleteResults structure
-//  * containing code-completion results, which should eventually be
-//  * freed with \c clang_disposeCodeCompleteResults(). If code
-//  * completion fails, returns NULL.
-//  */
-// fn
-// CXCodeCompleteResults *
-// clang_codeCompleteAt(CXTranslationUnit TU, ZString complete_filename,
-//                      CUInt complete_line, CUInt complete_column,
-//                      struct CXUnsavedFile *unsaved_files,
-//                      CUInt num_unsaved_files, CUInt options);
-//
-// /**
-//  * Sort the code-completion results in case-insensitive alphabetical
-//  * order.
-//  *
-//  * \param Results The set of results to sort.
-//  * \param NumResults The number of results in \p Results.
-//  */
-// fn
-// void clang_sortCodeCompletionResults(CXCompletionResult *Results,
-//                                      CUInt NumResults);
-//
-// /**
-//  * Free the given set of code-completion results.
-//  */
-// fn
-// void clang_disposeCodeCompleteResults(CXCodeCompleteResults *Results);
-//
-// /**
-//  * Determine the number of diagnostics produced prior to the
-//  * location where code completion was performed.
-//  */
-// fn
-// CUInt clang_codeCompleteGetNumDiagnostics(CXCodeCompleteResults *Results);
-//
-// /**
-//  * Retrieve a diagnostic associated with the given code completion.
-//  *
-//  * \param Results the code completion results to query.
-//  * \param Index the zero-based diagnostic number to retrieve.
-//  *
-//  * \returns the requested diagnostic. This diagnostic must be freed
-//  * via a call to \c clang_disposeDiagnostic().
-//  */
-// fn
-// CXDiagnostic clang_codeCompleteGetDiagnostic(CXCodeCompleteResults *Results,
-//                                              CUInt Index);
-//
-// /**
-//  * Determines what completions are appropriate for the context
-//  * the given code completion.
-//  *
-//  * \param Results the code completion results to query
-//  *
-//  * \returns the kinds of completions that are appropriate for use
-//  * along with the given code completion results.
-//  */
-// fn
-// CUInt CLongLong
-// clang_codeCompleteGetContexts(CXCodeCompleteResults *Results);
-//
-// /**
-//  * Returns the cursor kind for the container for the current code
-//  * completion context. The container is only guaranteed to be set for
-//  * contexts where a container exists (i.e. member accesses or Objective-C
-//  * message sends); if there is not a container, this function will return
-//  * CXCursor_InvalidCode.
-//  *
-//  * \param Results the code completion results to query
-//  *
-//  * \param IsIncomplete on return, this value will be false if Clang has complete
-//  * information about the container. If Clang does not have complete
-//  * information, this value will be true.
-//  *
-//  * \returns the container kind, or CXCursor_InvalidCode if there is not a
-//  * container
-//  */
-// fn
-// enum CXCursorKind
-// clang_codeCompleteGetContainerKind(CXCodeCompleteResults *Results,
-//                                    CUInt *IsIncomplete);
-//
-// /**
-//  * Returns the USR for the container for the current code completion
-//  * context. If there is not a container for the current context, this
-//  * function will return the empty string.
-//  *
-//  * \param Results the code completion results to query
-//  *
-//  * \returns the USR for the container
-//  */
-// fn
-// CXString clang_codeCompleteGetContainerUSR(CXCodeCompleteResults *Results);
-//
-// /**
-//  * Returns the currently-entered selector for an Objective-C message
-//  * send, formatted like "initWithFoo:bar:". Only guaranteed to return a
-//  * non-empty string for CXCompletionContext_ObjCInstanceMessage and
-//  * CXCompletionContext_ObjCClassMessage.
-//  *
-//  * \param Results the code completion results to query
-//  *
-//  * \returns the selector (or partial selector) that has been entered thus far
-//  * for an Objective-C message send.
-//  */
-// fn
-// CXString clang_codeCompleteGetObjCSelector(CXCodeCompleteResults *Results);
-//
-// /**
-//  * Return a version string, suitable for showing to a user, but not
-//  *        intended to be parsed (the format is not guaranteed to be stable).
-//  */
-// fn CXString clang_getClangVersion(void);
-//
-// /**
-//  * Enable/disable crash recovery.
-//  *
-//  * \param isEnabled Flag to indicate if crash recovery is enabled.  A non-zero
-//  *        value enables crash recovery, while 0 disables it.
-//  */
-// fn void clang_toggleCrashRecovery(CUInt isEnabled);
-//
-// /**
-//  * Visitor invoked for each file in a translation unit
-//  *        (used with clang_getInclusions()).
-//  *
-//  * This visitor function will be invoked by clang_getInclusions() for each
-//  * file included (either at the top-level or by \#include directives) within
-//  * a translation unit.  The first argument is the file being included, and
-//  * the second and third arguments provide the inclusion stack.  The
-//  * array is sorted in order of immediate inclusion.  For example,
-//  * the first element refers to the location that included 'included_file'.
-//  */
-// typedef void (*CXInclusionVisitor)(CXFile included_file,
-//                                    CXSourceLocation *inclusion_stack,
-//                                    CUInt include_len,
-//                                    CXClientData client_data);
-//
-// /**
-//  * Visit the set of preprocessor inclusions in a translation unit.
-//  *   The visitor function is called with the provided data for every included
-//  *   file.  This does not include headers included by the PCH file (unless one
-//  *   is inspecting the inclusions in the PCH file itself).
-//  */
-// fn void clang_getInclusions(CXTranslationUnit tu,
-//                                         CXInclusionVisitor visitor,
-//                                         CXClientData client_data);
-//
-// typedef enum {
-//   CXEval_Int = 1,
-//   CXEval_Float = 2,
-//   CXEval_ObjCStrLiteral = 3,
-//   CXEval_StrLiteral = 4,
-//   CXEval_CFStr = 5,
-//   CXEval_Other = 6,
-//
-//   CXEval_UnExposed = 0
-//
-// } CXEvalResultKind;
-//
-// /**
-//  * Evaluation result of a cursor
-//  */
-// typedef void *CXEvalResult;
-//
-// /**
-//  * If cursor is a statement declaration tries to evaluate the
-//  * statement and if its variable, tries to evaluate its initializer,
-//  * into its corresponding type.
-//  * If it's an expression, tries to evaluate the expression.
-//  */
-// fn CXEvalResult clang_Cursor_Evaluate(CXCursor C);
-//
-// /**
-//  * Returns the kind of the evaluated result.
-//  */
-// fn CXEvalResultKind clang_EvalResult_getKind(CXEvalResult E);
-//
-// /**
-//  * Returns the evaluation result as integer if the
-//  * kind is Int.
-//  */
-// fn CInt clang_EvalResult_getAsInt(CXEvalResult E);
-//
-// /**
-//  * Returns the evaluation result as a CLongLong integer if the
-//  * kind is Int. This prevents overflows that may happen if the result is
-//  * returned with clang_EvalResult_getAsInt.
-//  */
-// fn CLongLong clang_EvalResult_getAsLongLong(CXEvalResult E);
-//
-// /**
-//  * Returns a non-zero value if the kind is Int and the evaluation
-//  * result resulted in an CUInt integer.
-//  */
-// fn CUInt clang_EvalResult_isUnsignedInt(CXEvalResult E);
-//
-// /**
-//  * Returns the evaluation result as an CUInt integer if
-//  * the kind is Int and clang_EvalResult_isUnsignedInt is non-zero.
-//  */
-// fn CUInt CLongLong
-// clang_EvalResult_getAsUnsigned(CXEvalResult E);
-//
-// /**
-//  * Returns the evaluation result as double if the
-//  * kind is double.
-//  */
-// fn double clang_EvalResult_getAsDouble(CXEvalResult E);
-//
-// /**
-//  * Returns the evaluation result as a constant string if the
-//  * kind is other than Int or float. User must not free this pointer,
-//  * instead call clang_EvalResult_dispose on the CXEvalResult returned
-//  * by clang_Cursor_Evaluate.
-//  */
-// fn ZString clang_EvalResult_getAsStr(CXEvalResult E);
-//
-// /**
-//  * Disposes the created Eval memory.
-//  */
-// fn void clang_EvalResult_dispose(CXEvalResult E);
-//
-// /**
-//  * A remapping of original source files and their translated files.
-//  */
-// typedef void *CXRemapping;
-//
-// /**
-//  * Retrieve a remapping.
-//  *
-//  * \param path the path that contains metadata about remappings.
-//  *
-//  * \returns the requested remapping. This remapping must be freed
-//  * via a call to \c clang_remap_dispose(). Can return NULL if an error occurred.
-//  */
-// fn CXRemapping clang_getRemappings(ZString path);
-//
-// /**
-//  * Retrieve a remapping.
-//  *
-//  * \param filePaths pointer to an array of file paths containing remapping info.
-//  *
-//  * \param numFiles number of file paths.
-//  *
-//  * \returns the requested remapping. This remapping must be freed
-//  * via a call to \c clang_remap_dispose(). Can return NULL if an error occurred.
-//  */
-// fn
-// CXRemapping clang_getRemappingsFromFileList(ZString *filePaths,
-//                                             CUInt numFiles);
-//
-// /**
-//  * Determine the number of remappings.
-//  */
-// fn CUInt clang_remap_getNumFiles(CXRemapping);
-//
-// /**
-//  * Get the original and the associated filename from the remapping.
-//  *
-//  * \param original If non-NULL, will be set to the original filename.
-//  *
-//  * \param transformed If non-NULL, will be set to the filename that the original
-//  * is associated with.
-//  */
-// fn void clang_remap_getFilenames(CXRemapping, CUInt index,
-//                                              CXString *original,
-//                                              CXString *transformed);
-//
-// /**
-//  * Dispose the remapping.
-//  */
-// fn void clang_remap_dispose(CXRemapping);
-//
-//
-//
-// typedef struct CXCursorAndRangeVisitor {
-//   void *context;
-//   enum CXVisitorResult (*visit)(void *context, CXCursor, CXSourceRange);
-// } CXCursorAndRangeVisitor;
-//
-// typedef enum {
-//   /**
-//    * Function returned successfully.
-//    */
-//   CXResult_Success = 0,
-//   /**
-//    * One of the parameters was invalid for the function.
-//    */
-//   CXResult_Invalid = 1,
-//   /**
-//    * The function was terminated by a callback (e.g. it returned
-//    * CXVisit_Break)
-//    */
-//   CXResult_VisitBreak = 2
-//
-// } CXResult;
-//
-// /**
-//  * Find references of a declaration in a specific file.
-//  *
-//  * \param cursor pointing to a declaration or a reference of one.
-//  *
-//  * \param file to search for references.
-//  *
-//  * \param visitor callback that will receive pairs of CXCursor/CXSourceRange for
-//  * each reference found.
-//  * The CXSourceRange will poCInt inside the file; if the reference is inside
-//  * a macro (and not a macro argument) the CXSourceRange will be invalid.
-//  *
-//  * \returns one of the CXResult enumerators.
-//  */
-// fn CXResult clang_findReferencesInFile(
-//     CXCursor cursor, CXFile file, CXCursorAndRangeVisitor visitor);
-//
-// /**
-//  * Find #import/#include directives in a specific file.
-//  *
-//  * \param TU translation unit containing the file to query.
-//  *
-//  * \param file to search for #import/#include directives.
-//  *
-//  * \param visitor callback that will receive pairs of CXCursor/CXSourceRange for
-//  * each directive found.
-//  *
-//  * \returns one of the CXResult enumerators.
-//  */
-// fn CXResult clang_findIncludesInFile(
-//     CXTranslationUnit TU, CXFile file, CXCursorAndRangeVisitor visitor);
-//
-// #if __has_feature(blocks)
-// typedef enum CXVisitorResult (^CXCursorAndRangeVisitorBlock)(CXCursor,
-//                                                              CXSourceRange);
-// #else
-// typedef struct _CXCursorAndRangeVisitorBlock *CXCursorAndRangeVisitorBlock;
-// #endif
-//
-// fn
-// CXResult clang_findReferencesInFileWithBlock(CXCursor, CXFile,
-//                                              CXCursorAndRangeVisitorBlock);
-//
-// fn
-// CXResult clang_findIncludesInFileWithBlock(CXTranslationUnit, CXFile,
-//                                            CXCursorAndRangeVisitorBlock);
-//
-// /**
-//  * The client's data object that is associated with a CXFile.
-//  */
-// typedef void *CXIdxClientFile;
-//
-// /**
-//  * The client's data object that is associated with a semantic entity.
-//  */
-// typedef void *CXIdxClientEntity;
-//
-// /**
-//  * The client's data object that is associated with a semantic container
-//  * of entities.
-//  */
-// typedef void *CXIdxClientContainer;
-//
-// /**
-//  * The client's data object that is associated with an AST file (PCH
-//  * or module).
-//  */
-// typedef void *CXIdxClientASTFile;
-//
-// /**
-//  * Source location passed to index callbacks.
-//  */
-// typedef struct {
-//   void *ptr_data[2];
-//   CUInt int_data;
-// } CXIdxLoc;
-//
-// /**
-//  * Data for ppIncludedFile callback.
-//  */
-// typedef struct {
-//   /**
-//    * Location of '#' in the \#include/\#import directive.
-//    */
-//   CXIdxLoc hashLoc;
-//   /**
-//    * Filename as written in the \#include/\#import directive.
-//    */
-//   ZString filename;
-//   /**
-//    * The actual file that the \#include/\#import directive resolved to.
-//    */
-//   CXFile file;
-//   CInt isImport;
-//   CInt isAngled;
-//   /**
-//    * Non-zero if the directive was automatically turned into a module
-//    * import.
-//    */
-//   CInt isModuleImport;
-// } CXIdxIncludedFileInfo;
-//
-// /**
-//  * Data for IndexerCallbacks#importedASTFile.
-//  */
-// typedef struct {
-//   /**
-//    * Top level AST file containing the imported PCH, module or submodule.
-//    */
-//   CXFile file;
-//   /**
-//    * The imported module or NULL if the AST file is a PCH.
-//    */
-//   CXModule module;
-//   /**
-//    * Location where the file is imported. Applicable only for modules.
-//    */
-//   CXIdxLoc loc;
-//   /**
-//    * Non-zero if an inclusion directive was automatically turned into
-//    * a module import. Applicable only for modules.
-//    */
-//   CInt isImplicit;
-//
-// } CXIdxImportedASTFileInfo;
-//
-// typedef enum {
-//   CXIdxEntity_Unexposed = 0,
-//   CXIdxEntity_Typedef = 1,
-//   CXIdxEntity_Function = 2,
-//   CXIdxEntity_Variable = 3,
-//   CXIdxEntity_Field = 4,
-//   CXIdxEntity_EnumConstant = 5,
-//
-//   CXIdxEntity_ObjCClass = 6,
-//   CXIdxEntity_ObjCProtocol = 7,
-//   CXIdxEntity_ObjCCategory = 8,
-//
-//   CXIdxEntity_ObjCInstanceMethod = 9,
-//   CXIdxEntity_ObjCClassMethod = 10,
-//   CXIdxEntity_ObjCProperty = 11,
-//   CXIdxEntity_ObjCIvar = 12,
-//
-//   CXIdxEntity_Enum = 13,
-//   CXIdxEntity_Struct = 14,
-//   CXIdxEntity_Union = 15,
-//
-//   CXIdxEntity_CXXClass = 16,
-//   CXIdxEntity_CXXNamespace = 17,
-//   CXIdxEntity_CXXNamespaceAlias = 18,
-//   CXIdxEntity_CXXStaticVariable = 19,
-//   CXIdxEntity_CXXStaticMethod = 20,
-//   CXIdxEntity_CXXInstanceMethod = 21,
-//   CXIdxEntity_CXXConstructor = 22,
-//   CXIdxEntity_CXXDestructor = 23,
-//   CXIdxEntity_CXXConversionFunction = 24,
-//   CXIdxEntity_CXXTypeAlias = 25,
-//   CXIdxEntity_CXXInterface = 26,
-//   CXIdxEntity_CXXConcept = 27
-//
-// } CXIdxEntityKind;
-//
-// typedef enum {
-//   CXIdxEntityLang_None = 0,
-//   CXIdxEntityLang_C = 1,
-//   CXIdxEntityLang_ObjC = 2,
-//   CXIdxEntityLang_CXX = 3,
-//   CXIdxEntityLang_Swift = 4
-// } CXIdxEntityLanguage;
-//
-// /**
-//  * Extra C++ template information for an entity. This can apply to:
-//  * CXIdxEntity_Function
-//  * CXIdxEntity_CXXClass
-//  * CXIdxEntity_CXXStaticMethod
-//  * CXIdxEntity_CXXInstanceMethod
-//  * CXIdxEntity_CXXConstructor
-//  * CXIdxEntity_CXXConversionFunction
-//  * CXIdxEntity_CXXTypeAlias
-//  */
-// typedef enum {
-//   CXIdxEntity_NonTemplate = 0,
-//   CXIdxEntity_Template = 1,
-//   CXIdxEntity_TemplatePartialSpecialization = 2,
-//   CXIdxEntity_TemplateSpecialization = 3
-// } CXIdxEntityCXXTemplateKind;
-//
-// typedef enum {
-//   CXIdxAttr_Unexposed = 0,
-//   CXIdxAttr_IBAction = 1,
-//   CXIdxAttr_IBOutlet = 2,
-//   CXIdxAttr_IBOutletCollection = 3
-// } CXIdxAttrKind;
-//
-// typedef struct {
-//   CXIdxAttrKind kind;
-//   CXCursor cursor;
-//   CXIdxLoc loc;
-// } CXIdxAttrInfo;
-//
-// typedef struct {
-//   CXIdxEntityKind kind;
-//   CXIdxEntityCXXTemplateKind templateKind;
-//   CXIdxEntityLanguage lang;
-//   ZString name;
-//   ZString USR;
-//   CXCursor cursor;
-//   const CXIdxAttrInfo *const *attributes;
-//   CUInt numAttributes;
-// } CXIdxEntityInfo;
-//
-// typedef struct {
-//   CXCursor cursor;
-// } CXIdxContainerInfo;
-//
-// typedef struct {
-//   const CXIdxAttrInfo *attrInfo;
-//   const CXIdxEntityInfo *objcClass;
-//   CXCursor classCursor;
-//   CXIdxLoc classLoc;
-// } CXIdxIBOutletCollectionAttrInfo;
-//
-// typedef enum { CXIdxDeclFlag_Skipped = 0x1 } CXIdxDeclInfoFlags;
-//
-// typedef struct {
-//   const CXIdxEntityInfo *entityInfo;
-//   CXCursor cursor;
-//   CXIdxLoc loc;
-//   const CXIdxContainerInfo *semanticContainer;
-//   /**
-//    * Generally same as #semanticContainer but can be different in
-//    * cases like out-of-line C++ member functions.
-//    */
-//   const CXIdxContainerInfo *lexicalContainer;
-//   CInt isRedeclaration;
-//   CInt isDefinition;
-//   CInt isContainer;
-//   const CXIdxContainerInfo *declAsContainer;
-//   /**
-//    * Whether the declaration exists in code or was created implicitly
-//    * by the compiler, e.g. implicit Objective-C methods for properties.
-//    */
-//   CInt isImplicit;
-//   const CXIdxAttrInfo *const *attributes;
-//   CUInt numAttributes;
-//
-//   CUInt flags;
-//
-// } CXIdxDeclInfo;
-//
-// typedef enum {
-//   CXIdxObjCContainer_ForwardRef = 0,
-//   CXIdxObjCContainer_Interface = 1,
-//   CXIdxObjCContainer_Implementation = 2
-// } CXIdxObjCContainerKind;
-//
-// typedef struct {
-//   const CXIdxDeclInfo *declInfo;
-//   CXIdxObjCContainerKind kind;
-// } CXIdxObjCContainerDeclInfo;
-//
-// typedef struct {
-//   const CXIdxEntityInfo *base;
-//   CXCursor cursor;
-//   CXIdxLoc loc;
-// } CXIdxBaseClassInfo;
-//
-// typedef struct {
-//   const CXIdxEntityInfo *protocol;
-//   CXCursor cursor;
-//   CXIdxLoc loc;
-// } CXIdxObjCProtocolRefInfo;
-//
-// typedef struct {
-//   const CXIdxObjCProtocolRefInfo *const *protocols;
-//   CUInt numProtocols;
-// } CXIdxObjCProtocolRefListInfo;
-//
-// typedef struct {
-//   const CXIdxObjCContainerDeclInfo *containerInfo;
-//   const CXIdxBaseClassInfo *superInfo;
-//   const CXIdxObjCProtocolRefListInfo *protocols;
-// } CXIdxObjCInterfaceDeclInfo;
-//
-// typedef struct {
-//   const CXIdxObjCContainerDeclInfo *containerInfo;
-//   const CXIdxEntityInfo *objcClass;
-//   CXCursor classCursor;
-//   CXIdxLoc classLoc;
-//   const CXIdxObjCProtocolRefListInfo *protocols;
-// } CXIdxObjCCategoryDeclInfo;
-//
-// typedef struct {
-//   const CXIdxDeclInfo *declInfo;
-//   const CXIdxEntityInfo *getter;
-//   const CXIdxEntityInfo *setter;
-// } CXIdxObjCPropertyDeclInfo;
-//
-// typedef struct {
-//   const CXIdxDeclInfo *declInfo;
-//   const CXIdxBaseClassInfo *const *bases;
-//   CUInt numBases;
-// } CXIdxCXXClassDeclInfo;
-//
-// /**
-//  * Data for IndexerCallbacks#indexEntityReference.
-//  *
-//  * This may be deprecated in a future version as this duplicates
-//  * the \c CXSymbolRole_Implicit bit in \c CXSymbolRole.
-//  */
-// typedef enum {
-//   /**
-//    * The entity is referenced directly in user's code.
-//    */
-//   CXIdxEntityRef_Direct = 1,
-//   /**
-//    * An implicit reference, e.g. a reference of an Objective-C method
-//    * via the dot syntax.
-//    */
-//   CXIdxEntityRef_Implicit = 2
-// } CXIdxEntityRefKind;
-//
-// /**
-//  * Roles that are attributed to symbol occurrences.
-//  *
-//  * Internal: this currently mirrors low 9 bits of clang::index::SymbolRole with
-//  * higher bits zeroed. These high bits may be exposed in the future.
-//  */
-// typedef enum {
-//   CXSymbolRole_None = 0,
-//   CXSymbolRole_Declaration = 1 << 0,
-//   CXSymbolRole_Definition = 1 << 1,
-//   CXSymbolRole_Reference = 1 << 2,
-//   CXSymbolRole_Read = 1 << 3,
-//   CXSymbolRole_Write = 1 << 4,
-//   CXSymbolRole_Call = 1 << 5,
-//   CXSymbolRole_Dynamic = 1 << 6,
-//   CXSymbolRole_AddressOf = 1 << 7,
-//   CXSymbolRole_Implicit = 1 << 8
-// } CXSymbolRole;
-//
-// /**
-//  * Data for IndexerCallbacks#indexEntityReference.
-//  */
-// typedef struct {
-//   CXIdxEntityRefKind kind;
-//   /**
-//    * Reference cursor.
-//    */
-//   CXCursor cursor;
-//   CXIdxLoc loc;
-//   /**
-//    * The entity that gets referenced.
-//    */
-//   const CXIdxEntityInfo *referencedEntity;
-//   /**
-//    * Immediate "parent" of the reference. For example:
-//    *
-//    * \code
-//    * Foo *var;
-//    * \endcode
-//    *
-//    * The parent of reference of type 'Foo' is the variable 'var'.
-//    * For references inside statement bodies of functions/methods,
-//    * the parentEntity will be the function/method.
-//    */
-//   const CXIdxEntityInfo *parentEntity;
-//   /**
-//    * Lexical container context of the reference.
-//    */
-//   const CXIdxContainerInfo *container;
-//   /**
-//    * Sets of symbol roles of the reference.
-//    */
-//   CXSymbolRole role;
-// } CXIdxEntityRefInfo;
-//
-// /**
-//  * A group of callbacks used by #clang_indexSourceFile and
-//  * #clang_indexTranslationUnit.
-//  */
-// typedef struct {
-//   /**
-//    * Called periodically to check whether indexing should be aborted.
-//    * Should return 0 to continue, and non-zero to abort.
-//    */
-//   CInt (*abortQuery)(CXClientData client_data, void *reserved);
-//
-//   /**
-//    * Called at the end of indexing; passes the complete diagnostic set.
-//    */
-//   void (*diagnostic)(CXClientData client_data, CXDiagnosticSet, void *reserved);
-//
-//   CXIdxClientFile (*enteredMainFile)(CXClientData client_data, CXFile mainFile,
-//                                      void *reserved);
-//
-//   /**
-//    * Called when a file gets \#included/\#imported.
-//    */
-//   CXIdxClientFile (*ppIncludedFile)(CXClientData client_data,
-//                                     const CXIdxIncludedFileInfo *);
-//
-//   /**
-//    * Called when a AST file (PCH or module) gets imported.
-//    *
-//    * AST files will not get indexed (there will not be callbacks to index all
-//    * the entities in an AST file). The recommended action is that, if the AST
-//    * file is not already indexed, to initiate a new indexing job specific to
-//    * the AST file.
-//    */
-//   CXIdxClientASTFile (*importedASTFile)(CXClientData client_data,
-//                                         const CXIdxImportedASTFileInfo *);
-//
-//   /**
-//    * Called at the beginning of indexing a translation unit.
-//    */
-//   CXIdxClientContainer (*startedTranslationUnit)(CXClientData client_data,
-//                                                  void *reserved);
-//
-//   void (*indexDeclaration)(CXClientData client_data, const CXIdxDeclInfo *);
-//
-//   /**
-//    * Called to index a reference of an entity.
-//    */
-//   void (*indexEntityReference)(CXClientData client_data,
-//                                const CXIdxEntityRefInfo *);
-//
-// } IndexerCallbacks;
-//
-// fn CInt clang_index_isEntityObjCContainerKind(CXIdxEntityKind);
-// fn const CXIdxObjCContainerDeclInfo *
-// clang_index_getObjCContainerDeclInfo(const CXIdxDeclInfo *);
-//
-// fn const CXIdxObjCInterfaceDeclInfo *
-// clang_index_getObjCInterfaceDeclInfo(const CXIdxDeclInfo *);
-//
-// fn
-// const CXIdxObjCCategoryDeclInfo *
-// clang_index_getObjCCategoryDeclInfo(const CXIdxDeclInfo *);
-//
-// fn const CXIdxObjCProtocolRefListInfo *
-// clang_index_getObjCProtocolRefListInfo(const CXIdxDeclInfo *);
-//
-// fn const CXIdxObjCPropertyDeclInfo *
-// clang_index_getObjCPropertyDeclInfo(const CXIdxDeclInfo *);
-//
-// fn const CXIdxIBOutletCollectionAttrInfo *
-// clang_index_getIBOutletCollectionAttrInfo(const CXIdxAttrInfo *);
-//
-// fn const CXIdxCXXClassDeclInfo *
-// clang_index_getCXXClassDeclInfo(const CXIdxDeclInfo *);
-//
-// /**
-//  * For retrieving a custom CXIdxClientContainer attached to a
-//  * container.
-//  */
-// fn CXIdxClientContainer
-// clang_index_getClientContainer(const CXIdxContainerInfo *);
-//
-// /**
-//  * For setting a custom CXIdxClientContainer attached to a
-//  * container.
-//  */
-// fn void clang_index_setClientContainer(const CXIdxContainerInfo *,
-//                                                    CXIdxClientContainer);
-//
-// /**
-//  * For retrieving a custom CXIdxClientEntity attached to an entity.
-//  */
-// fn CXIdxClientEntity
-// clang_index_getClientEntity(const CXIdxEntityInfo *);
-//
-// /**
-//  * For setting a custom CXIdxClientEntity attached to an entity.
-//  */
-// fn void clang_index_setClientEntity(const CXIdxEntityInfo *,
-//                                                 CXIdxClientEntity);
-//
-// /**
-//  * An indexing action/session, to be applied to one or multiple
-//  * translation units.
-//  */
-// typedef void *CXIndexAction;
-//
-// /**
-//  * An indexing action/session, to be applied to one or multiple
-//  * translation units.
-//  *
-//  * \param CIdx The index object with which the index action will be associated.
-//  */
-// fn CXIndexAction clang_IndexAction_create(CXIndex CIdx);
-//
-// /**
-//  * Destroy the given index action.
-//  *
-//  * The index action must not be destroyed until all of the translation units
-//  * created within that index action have been destroyed.
-//  */
-// fn void clang_IndexAction_dispose(CXIndexAction);
-//
-// typedef enum {
-//   /**
-//    * Used to indicate that no special indexing options are needed.
-//    */
-//   CXIndexOpt_None = 0x0,
-//
-//   /**
-//    * Used to indicate that IndexerCallbacks#indexEntityReference should
-//    * be invoked for only one reference of an entity per source file that does
-//    * not also include a declaration/definition of the entity.
-//    */
-//   CXIndexOpt_SuppressRedundantRefs = 0x1,
-//
-//   /**
-//    * Function-local symbols should be indexed. If this is not set
-//    * function-local symbols will be ignored.
-//    */
-//   CXIndexOpt_IndexFunctionLocalSymbols = 0x2,
-//
-//   /**
-//    * Implicit function/class template instantiations should be indexed.
-//    * If this is not set, implicit instantiations will be ignored.
-//    */
-//   CXIndexOpt_IndexImplicitTemplateInstantiations = 0x4,
-//
-//   /**
-//    * Suppress all compiler warnings when parsing for indexing.
-//    */
-//   CXIndexOpt_SuppressWarnings = 0x8,
-//
-//   /**
-//    * Skip a function/method body that was already parsed during an
-//    * indexing session associated with a \c CXIndexAction object.
-//    * Bodies in system headers are always skipped.
-//    */
-//   CXIndexOpt_SkipParsedBodiesInSession = 0x10
-//
-// } CXIndexOptFlags;
-//
-// /**
-//  * Index the given source file and the translation unit corresponding
-//  * to that file via callbacks implemented through #IndexerCallbacks.
-//  *
-//  * \param client_data pointer data supplied by the client, which will
-//  * be passed to the invoked callbacks.
-//  *
-//  * \param index_callbacks Pointer to indexing callbacks that the client
-//  * implements.
-//  *
-//  * \param index_callbacks_size Size of #IndexerCallbacks structure that gets
-//  * passed in index_callbacks.
-//  *
-//  * \param index_options A bitmask of options that affects how indexing is
-//  * performed. This should be a bitwise OR of the CXIndexOpt_XXX flags.
-//  *
-//  * \param[out] out_TU pointer to store a \c CXTranslationUnit that can be
-//  * reused after indexing is finished. Set to \c NULL if you do not require it.
-//  *
-//  * \returns 0 on success or if there were errors from which the compiler could
-//  * recover.  If there is a failure from which there is no recovery, returns
-//  * a non-zero \c CXErrorCode.
-//  *
-//  * The rest of the parameters are the same as #clang_parseTranslationUnit.
-//  */
-// fn CInt clang_indexSourceFile(
-//     CXIndexAction, CXClientData client_data, IndexerCallbacks *index_callbacks,
-//     CUInt index_callbacks_size, CUInt index_options,
-//     ZString source_filename, ZString const *command_line_args,
-//     CInt num_command_line_args, struct CXUnsavedFile *unsaved_files,
-//     CUInt num_unsaved_files, CXTranslationUnit *out_TU, CUInt TU_options);
-//
-// /**
-//  * Same as clang_indexSourceFile but requires a full command line
-//  * for \c command_line_args including argv[0]. This is useful if the standard
-//  * library paths are relative to the binary.
-//  */
-// fn CInt clang_indexSourceFileFullArgv(
-//     CXIndexAction, CXClientData client_data, IndexerCallbacks *index_callbacks,
-//     CUInt index_callbacks_size, CUInt index_options,
-//     ZString source_filename, ZString const *command_line_args,
-//     CInt num_command_line_args, struct CXUnsavedFile *unsaved_files,
-//     CUInt num_unsaved_files, CXTranslationUnit *out_TU, CUInt TU_options);
-//
-// /**
-//  * Index the given translation unit via callbacks implemented through
-//  * #IndexerCallbacks.
-//  *
-//  * The order of callback invocations is not guaranteed to be the same as
-//  * when indexing a source file. The high level order will be:
-//  *
-//  *   -Preprocessor callbacks invocations
-//  *   -Declaration/reference callbacks invocations
-//  *   -Diagnostic callback invocations
-//  *
-//  * The parameters are the same as #clang_indexSourceFile.
-//  *
-//  * \returns If there is a failure from which there is no recovery, returns
-//  * non-zero, otherwise returns 0.
-//  */
-// fn CInt clang_indexTranslationUnit(
-//     CXIndexAction, CXClientData client_data, IndexerCallbacks *index_callbacks,
-//     CUInt index_callbacks_size, CUInt index_options, CXTranslationUnit);
-//
-// /**
-//  * Retrieve the CXIdxFile, file, line, column, and offset represented by
-//  * the given CXIdxLoc.
-//  *
-//  * If the location refers into a macro expansion, retrieves the
-//  * location of the macro expansion and if it refers into a macro argument
-//  * retrieves the location of the argument.
-//  */
-// fn void clang_indexLoc_getFileLocation(CXIdxLoc loc,
-//                                                    CXIdxClientFile *indexFile,
-//                                                    CXFile *file, CUInt *line,
-//                                                    CUInt *column,
-//                                                    CUInt *offset);
-//
-// /**
-//  * Retrieve the CXSourceLocation represented by the given CXIdxLoc.
-//  */
-// fn
-// CXSourceLocation clang_indexLoc_getCXSourceLocation(CXIdxLoc loc);
-//
-// /**
-//  * Visitor invoked for each field found by a traversal.
-//  *
-//  * This visitor function will be invoked for each field found by
-//  * \c clang_Type_visitFields. Its first argument is the cursor being
-//  * visited, its second argument is the client data provided to
-//  * \c clang_Type_visitFields.
-//  *
-//  * The visitor should return one of the \c CXVisitorResult values
-//  * to direct \c clang_Type_visitFields.
-//  */
-// typedef enum CXVisitorResult (*CXFieldVisitor)(CXCursor C,
-//                                                CXClientData client_data);
-//
-// /**
-//  * Visit the fields of a particular type.
-//  *
-//  * This function visits all the direct fields of the given cursor,
-//  * invoking the given \p visitor function with the cursors of each
-//  * visited field. The traversal may be ended prematurely, if
-//  * the visitor returns \c CXFieldVisit_Break.
-//  *
-//  * \param T the record type whose field may be visited.
-//  *
-//  * \param visitor the visitor function that will be invoked for each
-//  * field of \p T.
-//  *
-//  * \param client_data pointer data supplied by the client, which will
-//  * be passed to the visitor each time it is invoked.
-//  *
-//  * \returns a non-zero value if the traversal was terminated
-//  * prematurely by the visitor returning \c CXFieldVisit_Break.
-//  */
-// fn CUInt clang_Type_visitFields(CXType T, CXFieldVisitor visitor,
-//                                                CXClientData client_data);
-//
-// /**
-//  * Describes the kind of binary operators.
-//  */
-// enum CXBinaryOperatorKind {
-//   /** This value describes cursors which are not binary operators. */
-//   CXBinaryOperator_Invalid,
-//   /** C++ Pointer - to - member operator. */
-//   CXBinaryOperator_PtrMemD,
-//   /** C++ Pointer - to - member operator. */
-//   CXBinaryOperator_PtrMemI,
-//   /** Multiplication operator. */
-//   CXBinaryOperator_Mul,
-//   /** Division operator. */
-//   CXBinaryOperator_Div,
-//   /** Remainder operator. */
-//   CXBinaryOperator_Rem,
-//   /** Addition operator. */
-//   CXBinaryOperator_Add,
-//   /** Subtraction operator. */
-//   CXBinaryOperator_Sub,
-//   /** Bitwise shift left operator. */
-//   CXBinaryOperator_Shl,
-//   /** Bitwise shift right operator. */
-//   CXBinaryOperator_Shr,
-//   /** C++ three-way comparison (spaceship) operator. */
-//   CXBinaryOperator_Cmp,
-//   /** Less than operator. */
-//   CXBinaryOperator_LT,
-//   /** Greater than operator. */
-//   CXBinaryOperator_GT,
-//   /** Less or equal operator. */
-//   CXBinaryOperator_LE,
-//   /** Greater or equal operator. */
-//   CXBinaryOperator_GE,
-//   /** Equal operator. */
-//   CXBinaryOperator_EQ,
-//   /** Not equal operator. */
-//   CXBinaryOperator_NE,
-//   /** Bitwise AND operator. */
-//   CXBinaryOperator_And,
-//   /** Bitwise XOR operator. */
-//   CXBinaryOperator_Xor,
-//   /** Bitwise OR operator. */
-//   CXBinaryOperator_Or,
-//   /** Logical AND operator. */
-//   CXBinaryOperator_LAnd,
-//   /** Logical OR operator. */
-//   CXBinaryOperator_LOr,
-//   /** Assignment operator. */
-//   CXBinaryOperator_Assign,
-//   /** Multiplication assignment operator. */
-//   CXBinaryOperator_MulAssign,
-//   /** Division assignment operator. */
-//   CXBinaryOperator_DivAssign,
-//   /** Remainder assignment operator. */
-//   CXBinaryOperator_RemAssign,
-//   /** Addition assignment operator. */
-//   CXBinaryOperator_AddAssign,
-//   /** Subtraction assignment operator. */
-//   CXBinaryOperator_SubAssign,
-//   /** Bitwise shift left assignment operator. */
-//   CXBinaryOperator_ShlAssign,
-//   /** Bitwise shift right assignment operator. */
-//   CXBinaryOperator_ShrAssign,
-//   /** Bitwise AND assignment operator. */
-//   CXBinaryOperator_AndAssign,
-//   /** Bitwise XOR assignment operator. */
-//   CXBinaryOperator_XorAssign,
-//   /** Bitwise OR assignment operator. */
-//   CXBinaryOperator_OrAssign,
-//   /** Comma operator. */
-//   CXBinaryOperator_Comma
-// };
-//
-// /**
-//  * Retrieve the spelling of a given CXBinaryOperatorKind.
-//  */
-// fn CXString
-// clang_getBinaryOperatorKindSpelling(enum CXBinaryOperatorKind kind);
-//
-// /**
-//  * Retrieve the binary operator kind of this cursor.
-//  *
-//  * If this cursor is not a binary operator then returns Invalid.
-//  */
-// fn enum CXBinaryOperatorKind
-// clang_getCursorBinaryOperatorKind(CXCursor cursor);
-//
-// /**
-//  * Describes the kind of unary operators.
-//  */
-// enum CXUnaryOperatorKind {
-//   /** This value describes cursors which are not unary operators. */
-//   CXUnaryOperator_Invalid,
-//   /** Postfix increment operator. */
-//   CXUnaryOperator_PostInc,
-//   /** Postfix decrement operator. */
-//   CXUnaryOperator_PostDec,
-//   /** Prefix increment operator. */
-//   CXUnaryOperator_PreInc,
-//   /** Prefix decrement operator. */
-//   CXUnaryOperator_PreDec,
-//   /** Address of operator. */
-//   CXUnaryOperator_AddrOf,
-//   /** Dereference operator. */
-//   CXUnaryOperator_Deref,
-//   /** Plus operator. */
-//   CXUnaryOperator_Plus,
-//   /** Minus operator. */
-//   CXUnaryOperator_Minus,
-//   /** Not operator. */
-//   CXUnaryOperator_Not,
-//   /** LNot operator. */
-//   CXUnaryOperator_LNot,
-//   /** "__real expr" operator. */
-//   CXUnaryOperator_Real,
-//   /** "__imag expr" operator. */
-//   CXUnaryOperator_Imag,
-//   /** __extension__ marker operator. */
-//   CXUnaryOperator_Extension,
-//   /** C++ co_await operator. */
-//   CXUnaryOperator_Coawait
-// };
-//
-// /**
-//  * Retrieve the spelling of a given CXUnaryOperatorKind.
-//  */
-// fn CXString
-// clang_getUnaryOperatorKindSpelling(enum CXUnaryOperatorKind kind);
-//
-// /**
-//  * Retrieve the unary operator kind of this cursor.
-//  *
-//  * If this cursor is not a unary operator then returns Invalid.
-//  */
-// fn enum CXUnaryOperatorKind
-// clang_getCursorUnaryOperatorKind(CXCursor cursor);
-//
-//
+/**
+ * Returns the USR for the container for the current code completion
+ * context. If there is not a container for the current context, this
+ * function will return the empty string.
+ *
+ * \param Results the code completion results to query
+ *
+ * \returns the USR for the container
+ */
+fn CXString codeCompleteGetContainerUSR(
+  CXCodeCompleteResults* results) 
+@extern("clang_codeCompleteGetContainerUSR");
+
+/**
+ * Returns the currently-entered selector for an Objective-C message
+ * send, formatted like "initWithFoo:bar:". Only guaranteed to return a
+ * non-empty string for CXCompletionContext_ObjCInstanceMessage and
+ * CXCompletionContext_ObjCClassMessage.
+ *
+ * \param Results the code completion results to query
+ *
+ * \returns the selector (or partial selector) that has been entered thus far
+ * for an Objective-C message send.
+ */
+fn CXString codeCompleteGetObjCSelector(
+  CXCodeCompleteResults* results) 
+@extern("clang_codeCompleteGetObjCSelector");
+
+/**
+ * Return a version string, suitable for showing to a user, but not
+ *        intended to be parsed (the format is not guaranteed to be stable).
+ */
+fn CXString getClangVersion() 
+@extern("clang_getClangVersion");
+
+/**
+ * Enable/disable crash recovery.
+ *
+ * \param isEnabled Flag to indicate if crash recovery is enabled.  A non-zero
+ *        value enables crash recovery, while 0 disables it.
+ */
+fn void toggleCrashRecovery(
+  CUInt is_enabled) 
+@extern("clang_toggleCrashRecovery");
+
+/**
+ * Visitor invoked for each file in a translation unit
+ *        (used with clang_getInclusions()).
+ *
+ * This visitor function will be invoked by clang_getInclusions() for each
+ * file included (either at the top-level or by \#include directives) within
+ * a translation unit.  The first argument is the file being included, and
+ * the second and third arguments provide the inclusion stack.  The
+ * array is sorted in order of immediate inclusion.  For example,
+ * the first element refers to the location that included 'included_file'.
+ */
+def CXInclusionVisitor = fn void(
+  CXFile included_file,
+  CXSourceLocation *inclusion_stack,
+  CUInt include_len,
+  CXClientData client_data);
+
+/**
+ * Visit the set of preprocessor inclusions in a translation unit.
+ *   The visitor function is called with the provided data for every included
+ *   file.  This does not include headers included by the PCH file (unless one
+ *   is inspecting the inclusions in the PCH file itself).
+ */
+fn void getInclusions(
+  CXTranslationUnit tu, 
+  CXInclusionVisitor visitor, 
+  CXClientData client_data) 
+@extern("clang_getInclusions");
+
+distinct CXEvalResultKind = inline CInt;
+
+const CXEvalResultKind EVAL_INT = 1;
+const CXEvalResultKind EVAL_FLOAT = 2;
+const CXEvalResultKind EVAL_OBJC_STR_LITERAL = 3;
+const CXEvalResultKind EVAL_STR_LITERAL = 4;
+const CXEvalResultKind EVAL_CF_STR = 5;
+const CXEvalResultKind EVAL_OTHER = 6;
+
+const CXEvalResultKind EVAL_UNEXPOSED = 0;
+
+/**
+ * Evaluation result of a cursor
+ */
+distinct CXEvalResult = inline void*;
+
+/**
+ * If cursor is a statement declaration tries to evaluate the
+ * statement and if its variable, tries to evaluate its initializer,
+ * into its corresponding type.
+ * If it's an expression, tries to evaluate the expression.
+ */
+fn CXEvalResult CXCursor.evaluate(
+  CXCursor c) 
+@extern("clang_Cursor_Evaluate");
+
+/**
+ * Returns the kind of the evaluated result.
+ */
+fn CXEvalResultKind CXEvalResult.getKind(
+  CXEvalResult e) 
+@extern("clang_EvalResult_getKind");
+
+/**
+ * Returns the evaluation result as integer if the
+ * kind is Int.
+ */
+fn CInt CXEvalResult.getAsInt(
+  CXEvalResult e) 
+@extern("clang_EvalResult_getAsInt");
+
+/**
+ * Returns the evaluation result as a CLongLong integer if the
+ * kind is Int. This prevents overflows that may happen if the result is
+ * returned with clang_EvalResult_getAsInt.
+ */
+fn CLongLong CXEvalResult.getAsLongLong(
+  CXEvalResult e) 
+@extern("clang_EvalResult_getAsLongLong");
+
+/**
+ * Returns a non-zero value if the kind is Int and the evaluation
+ * result resulted in an CUInt integer.
+ */
+fn CUInt CXEvalResult.isUnsignedInt(
+  CXEvalResult e) 
+@extern("clang_EvalResult_isUnsignedInt");
+
+/**
+ * Returns the evaluation result as an CUInt integer if
+ * the kind is Int and clang_EvalResult_isUnsignedInt is non-zero.
+ */
+fn CULongLong CXEvalResult.getAsUnsigned(
+  CXEvalResult e) 
+@extern("clang_EvalResult_getAsUnsigned");
+
+/**
+ * Returns the evaluation result as double if the
+ * kind is double.
+ */
+fn double CXEvalResult.getAsDouble(
+  CXEvalResult e) 
+@extern("clang_EvalResult_getAsDouble");
+
+/**
+ * Returns the evaluation result as a constant string if the
+ * kind is other than Int or float. User must not free this pointer,
+ * instead call clang_EvalResult_dispose on the CXEvalResult returned
+ * by clang_Cursor_Evaluate.
+ */
+fn ZString CXEvalResult.getAsStr(
+  CXEvalResult e) 
+@extern("clang_EvalResult_getAsStr");
+
+/**
+ * Disposes the created Eval memory.
+ */
+fn void CXEvalResult.dispose(
+  CXEvalResult e) 
+@extern("clang_EvalResult_dispose");
+
+/**
+ * A remapping of original source files and their translated files.
+ */
+distinct CXRemapping = inline void*;
+
+/**
+ * Retrieve a remapping.
+ *
+ * \param path the path that contains metadata about remappings.
+ *
+ * \returns the requested remapping. This remapping must be freed
+ * via a call to \c clang_remap_dispose(). Can return NULL if an error occurred.
+ */
+fn CXRemapping getRemappings(
+  ZString path) 
+@extern("clang_getRemappings");
+
+/**
+ * Retrieve a remapping.
+ *
+ * \param filePaths pointer to an array of file paths containing remapping info.
+ *
+ * \param numFiles number of file paths.
+ *
+ * \returns the requested remapping. This remapping must be freed
+ * via a call to \c clang_remap_dispose(). Can return NULL if an error occurred.
+ */
+fn CXRemapping getRemappingsFromFileList(
+  ZString* filePaths, 
+  CUInt numFiles) 
+@extern("clang_getRemappingsFromFileList");
+
+/**
+ * Determine the number of remappings.
+ */
+fn CUInt clang_remap_getNumFiles(CXRemapping);
+
+/**
+ * Get the original and the associated filename from the remapping.
+ *
+ * \param original If non-NULL, will be set to the original filename.
+ *
+ * \param transformed If non-NULL, will be set to the filename that the original
+ * is associated with.
+ */
+fn void CXRemapping.getFilenames(
+  CXRemapping remap, 
+  CUInt index, 
+  CXString* original, 
+  CXString* transformed) 
+@extern("clang_remap_getFilenames");
+
+/**
+ * Dispose the remapping.
+ */
+fn void CXRemapping.dispose(
+  CXRemapping remap) 
+@extern("clang_remap_dispose");
+
+distinct CXVisitorResult = inline CInt;
+
+const CXVisitorResult VISIT_BREAK = 0;
+const CXVisitorResult VISIT_CONTINUE = 1;
+
+def _CXCursorAndRangeVisitor = fn CXVisitorResult(void *context, CXCursor, CXSourceRange) @private;
+struct CXCursorAndRangeVisitor {
+  void* context;
+  _CXCursorAndRangeVisitor visit;
+}
+
+distinct CXResult = inline CInt;
+/**
+ * Function returned successfully.
+ */
+const CXResult RESULT_SUCCESS = 0;
+/**
+ * One of the parameters was invalid for the function.
+ */
+const CXResult RESULT_INVALID = 1;
+/**
+ * The function was terminated by a callback (e.g. it returned
+ * CXVisit_Break)
+ */
+const CXResult RESULT_VISIT_BREAK = 2;
+
+/**
+ * Find references of a declaration in a specific file.
+ *
+ * \param cursor pointing to a declaration or a reference of one.
+ *
+ * \param file to search for references.
+ *
+ * \param visitor callback that will receive pairs of CXCursor/CXSourceRange for
+ * each reference found.
+ * The CXSourceRange will poCInt inside the file; if the reference is inside
+ * a macro (and not a macro argument) the CXSourceRange will be invalid.
+ *
+ * \returns one of the CXResult enumerators.
+ */
+fn CXResult findReferencesInFile(
+  CXCursor cursor, 
+  CXFile file, 
+  CXCursorAndRangeVisitor visitor) 
+@extern("clang_findReferencesInFile");
+
+/**
+ * Find #import/#include directives in a specific file.
+ *
+ * \param TU translation unit containing the file to query.
+ *
+ * \param file to search for #import/#include directives.
+ *
+ * \param visitor callback that will receive pairs of CXCursor/CXSourceRange for
+ * each directive found.
+ *
+ * \returns one of the CXResult enumerators.
+ */
+fn CXResult findIncludesInFile(
+  CXTranslationUnit tu, 
+  CXFile file, 
+  CXCursorAndRangeVisitor visitor) 
+@extern("clang_findIncludesInFile");
+
+distinct CXCursorAndRangeVisitorBlock = inline void*;
+
+fn CXResult findReferencesInFileWithBlock(
+  CXCursor cursor, 
+  CXFile file, 
+  CXCursorAndRangeVisitorBlock visitor_block) 
+@extern("clang_findReferencesInFileWithBlock");
+
+fn CXResult findIncludesInFileWithBlock(
+  CXTranslationUnit tu, 
+  CXFile file, 
+  CXCursorAndRangeVisitorBlock visitor_block) 
+@extern("clang_findIncludesInFileWithBlock");
+
+/**
+ * The client's data object that is associated with a CXFile.
+ */
+distinct CXIdxClientFile = inline void*;
+
+/**
+ * The client's data object that is associated with a semantic entity.
+ */
+distinct CXIdxClientEntity = inline void*;
+
+/**
+ * The client's data object that is associated with a semantic container
+ * of entities.
+ */
+distinct CXIdxClientContainer = inline void*;
+
+/**
+ * The client's data object that is associated with an AST file (PCH
+ * or module).
+ */
+distinct CXIdxClientASTFile = inline void*;
+
+/**
+ * Source location passed to index callbacks.
+ */
+struct CXIdxLoc {
+  void*[2] ptr_data;
+  CUInt int_data;
+}
+
+/**
+ * Data for ppIncludedFile callback.
+ */
+struct CXIdxIncludedFileInfo {
+  /*
+   * Location of '#' in the \#include/\#import directive.
+   */
+  CXIdxLoc hash_loc;
+  /*
+   * Filename as written in the \#include/\#import directive.
+   */
+  ZString filename;
+  /*
+   * The actual file that the \#include/\#import directive resolved to.
+   */
+  CXFile file;
+  CInt is_import;
+  CInt is_angled;
+  /*
+   * Non-zero if the directive was automatically turned into a module
+   * import.
+   */
+  CInt is_module_import;
+}
+
+/**
+ * Data for IndexerCallbacks#importedASTFile.
+ */
+struct CXIdxImportedASTFileInfo {
+  /*
+   * Top level AST file containing the imported PCH, module or submodule.
+   */
+  CXFile file;
+  /*
+   * The imported module or NULL if the AST file is a PCH.
+   */
+  CXModule mod;
+  /*
+   * Location where the file is imported. Applicable only for modules.
+   */
+  CXIdxLoc loc;
+  /*
+   * Non-zero if an inclusion directive was automatically turned into
+   * a module import. Applicable only for modules.
+   */
+  CInt is_implicit;
+}
+
+distinct CXIdxEntityKind = inline CInt;
+
+const CXIdxEntityKind IDX_ENTITY_UNEXPOSED = 0;
+const CXIdxEntityKind IDX_ENTITY_TYPEDEF = 1;
+const CXIdxEntityKind IDX_ENTITY_FUNCTION = 2;
+const CXIdxEntityKind IDX_ENTITY_VARIABLE = 3;
+const CXIdxEntityKind IDX_ENTITY_FIELD = 4;
+const CXIdxEntityKind IDX_ENTITY_ENUMCONSTANT = 5;
+
+const CXIdxEntityKind IDX_ENTITY_OBJCCLASS = 6;
+const CXIdxEntityKind IDX_ENTITY_OBJCPROTOCOL = 7;
+const CXIdxEntityKind IDX_ENTITY_OBJCCATEGORY = 8;
+
+const CXIdxEntityKind IDX_ENTITY_OBJCINSTANCEMETHOD = 9;
+const CXIdxEntityKind IDX_ENTITY_OBJCCLASSMETHOD = 10;
+const CXIdxEntityKind IDX_ENTITY_OBJCPROPERTY = 11;
+const CXIdxEntityKind IDX_ENTITY_OBJCIVAR = 12;
+
+const CXIdxEntityKind IDX_ENTITY_ENUM = 13;
+const CXIdxEntityKind IDX_ENTITY_STRUCT = 14;
+const CXIdxEntityKind IDX_ENTITY_UNION = 15;
+
+const CXIdxEntityKind IDX_ENTITY_CXXCLASS = 16;
+const CXIdxEntityKind IDX_ENTITY_CXXNAMESPACE = 17;
+const CXIdxEntityKind IDX_ENTITY_CXXNAMESPACEALIAS = 18;
+const CXIdxEntityKind IDX_ENTITY_CXXSTATICVARIABLE = 19;
+const CXIdxEntityKind IDX_ENTITY_CXXSTATICMETHOD = 20;
+const CXIdxEntityKind IDX_ENTITY_CXXINSTANCEMETHOD = 21;
+const CXIdxEntityKind IDX_ENTITY_CXXCONSTRUCTOR = 22;
+const CXIdxEntityKind IDX_ENTITY_CXXDESTRUCTOR = 23;
+const CXIdxEntityKind IDX_ENTITY_CXXCONVERSIONFUNCTION = 24;
+const CXIdxEntityKind IDX_ENTITY_CXXTYPEALIAS = 25;
+const CXIdxEntityKind IDX_ENTITY_CXXINTERFACE = 26;
+const CXIdxEntityKind IDX_ENTITY_CXXCONCEPT = 27;
+
+distinct CXIdxEntityLanguage = inline CInt;
+
+const CXIdxEntityLanguage IDX_ENTITY_LANG_NONE = 0;
+const CXIdxEntityLanguage IDX_ENTITY_LANG_C = 1;
+const CXIdxEntityLanguage IDX_ENTITY_LANG_OBJC = 2;
+const CXIdxEntityLanguage IDX_ENTITY_LANG_CXX = 3;
+const CXIdxEntityLanguage IDX_ENTITYLANG_SWIFT = 4;
+
+/**
+ * Extra C++ template information for an entity. This can apply to:
+ * CXIdxEntity_Function
+ * CXIdxEntity_CXXClass
+ * CXIdxEntity_CXXStaticMethod
+ * CXIdxEntity_CXXInstanceMethod
+ * CXIdxEntity_CXXConstructor
+ * CXIdxEntity_CXXConversionFunction
+ * CXIdxEntity_CXXTypeAlias
+ */
+distinct CXIdxEntityCXXTemplateKind = inline CInt;
+
+const CXIdxEntityKind IDX_ENTITY_NON_TEMPLATE = 0;
+const CXIdxEntityKind IDX_ENTITY_TEMPLATE = 1;
+const CXIdxEntityKind IDX_ENTITY_TEMPLATE_PARTIAL_SPECIALIZATION = 2;
+const CXIdxEntityKind IDX_ENTITY_TEMPLATE_SPECIALIZATION = 3;
+
+distinct CXIdxAttrKind = inline CInt;
+
+const CXIdxEntityKind IDX_ATTR_UNEXPOSED = 0;
+const CXIdxEntityKind IDX_ATTR_IB_ACTION = 1;
+const CXIdxEntityKind IDX_ATTR_IB_OUTLET = 2;
+const CXIdxEntityKind IDX_ATTR_IB_OUTLET_COLLECTION = 3;
+
+struct CXIdxAttrInfo {
+  CXIdxAttrKind kind;
+  CXCursor cursor;
+  CXIdxLoc loc;
+}
+
+struct CXIdxEntityInfo {
+  CXIdxEntityKind kind;
+  CXIdxEntityCXXTemplateKind template_kind;
+  CXIdxEntityLanguage lang;
+  ZString name;
+  ZString usr;
+  CXCursor cursor;
+  CXIdxAttrInfo** attributes;
+  CUInt num_attributes;
+}
+
+struct CXIdxContainerInfo {
+  CXCursor cursor;
+}
+
+struct CXIdxIBOutletCollectionAttrInfo {
+  CXIdxAttrInfo* attr_info;
+  CXIdxEntityInfo* objc_class;
+  CXCursor class_cursor;
+  CXIdxLoc class_loc;
+}
+
+distinct CXIdxDeclInfoFlags = inline CInt;
+const CXIdxDeclInfoFlags IDX_DECL_FLAG_SKIPPED = 0x1;
+
+struct CXIdxDeclInfo {
+  CXIdxEntityInfo* entity_info;
+  CXCursor cursor;
+  CXIdxLoc loc;
+  CXIdxContainerInfo* semantic_container;
+  /*
+   * Generally same as #semanticContainer but can be different in
+   * cases like out-of-line C++ member functions.
+   */
+  CXIdxContainerInfo* lexical_container;
+  CInt is_redeclaration;
+  CInt is_definition;
+  CInt is_container;
+  CXIdxContainerInfo* declAsContainer;
+  /*
+   * Whether the declaration exists in code or was created implicitly
+   * by the compiler, e.g. implicit Objective-C methods for properties.
+   */
+  CInt is_implicit;
+  CXIdxAttrInfo** attributes;
+  CUInt num_attributes;
+
+  CUInt flags;
+}
+
+distinct CXIdxObjCContainerKind = inline CInt;
+const CXIdxObjCContainerKind IDX_OBJC_CONTAINER_FORWARD_REF = 0;
+const CXIdxObjCContainerKind IDX_OBJC_CONTAINER_INTERFACE = 1;
+const CXIdxObjCContainerKind IDX_OBJC_CONTAINER_IMPLEMENTATION = 2;
+
+struct CXIdxObjCContainerDeclInfo {
+  CXIdxDeclInfo* decl_info;
+  CXIdxObjCContainerKind kind;
+}
+
+struct CXIdxBaseClassInfo {
+  CXIdxEntityInfo* base;
+  CXCursor cursor;
+  CXIdxLoc loc;
+}
+
+struct CXIdxObjCProtocolRefInfo {
+  CXIdxEntityInfo* protocol;
+  CXCursor cursor;
+  CXIdxLoc loc;
+}
+
+struct CXIdxObjCProtocolRefListInfo {
+  CXIdxObjCProtocolRefInfo** protocols;
+  CUInt num_protocols;
+}
+
+struct CXIdxObjCInterfaceDeclInfo {
+  CXIdxObjCContainerDeclInfo* containerInfo;
+  CXIdxBaseClassInfo* superInfo;
+  CXIdxObjCProtocolRefListInfo* protocols;
+}
+
+struct CXIdxObjCCategoryDeclInfo {
+  CXIdxObjCContainerDeclInfo* container_info;
+  CXIdxEntityInfo* objc_class;
+  CXCursor class_cursor;
+  CXIdxLoc class_loc;
+  CXIdxObjCProtocolRefListInfo* protocols;
+}
+
+struct CXIdxObjCPropertyDeclInfo {
+  CXIdxDeclInfo* decl_info;
+  CXIdxEntityInfo* getter;
+  CXIdxEntityInfo* setter;
+}
+
+struct CXIdxCXXClassDeclInfo {
+  CXIdxDeclInfo* decl_info;
+  CXIdxBaseClassInfo** bases;
+  CUInt num_bases;
+}
+
+/**
+ * Data for IndexerCallbacks#indexEntityReference.
+ *
+ * This may be deprecated in a future version as this duplicates
+ * the \c CXSymbolRole_Implicit bit in \c CXSymbolRole.
+ */
+distinct CXIdxEntityRefKind = inline CInt;
+/**
+ * The entity is referenced directly in user's code.
+ */
+const CXIdxEntityRefKind IDX_ENTITY_REF_DIRECT = 1;
+/**
+ * An implicit reference, e.g. a reference of an Objective-C method
+ * via the dot syntax.
+ */
+const CXIdxEntityRefKind IDX_ENTITY_REF_IMPLICIT = 2;
+
+/**
+ * Roles that are attributed to symbol occurrences.
+ *
+ * Internal: this currently mirrors low 9 bits of clang::index::SymbolRole with
+ * higher bits zeroed. These high bits may be exposed in the future.
+ */
+distinct CXSymbolRole = CInt;
+const CXSymbolRole SYMBOL_ROLE_NONE = 0;
+const CXSymbolRole SYMBOL_ROLE_DECLARATION = 1 << 0;
+const CXSymbolRole SYMBOL_ROLE_DEFINITION = 1 << 1;
+const CXSymbolRole SYMBOL_ROLE_REFERENCE = 1 << 2;
+const CXSymbolRole SYMBOL_ROLE_READ = 1 << 3;
+const CXSymbolRole SYMBOL_ROLE_WRITE = 1 << 4;
+const CXSymbolRole SYMBOL_ROLE_CALL = 1 << 5;
+const CXSymbolRole SYMBOL_ROLE_DYNAMIC = 1 << 6;
+const CXSymbolRole SYMBOL_ROLE_ADDRESS_OF = 1 << 7;
+const CXSymbolRole SYMBOL_ROLE_IMPLICIT = 1 << 8;
+
+/**
+ * Data for IndexerCallbacks#indexEntityReference.
+ */
+struct CXIdxEntityRefInfo {
+  CXIdxEntityRefKind kind;
+  /*
+   * Reference cursor.
+   */
+  CXCursor cursor;
+  CXIdxLoc loc;
+  /*
+   * The entity that gets referenced.
+   */
+  CXIdxEntityInfo* referenced_entity;
+  /*
+   * Immediate "parent" of the reference. For example:
+   *
+   * \code
+   * Foo *var;
+   * \endcode
+   *
+   * The parent of reference of type 'Foo' is the variable 'var'.
+   * For references inside statement bodies of functions/methods,
+   * the parentEntity will be the function/method.
+   */
+  CXIdxEntityInfo* parent_entity;
+  /*
+   * Lexical container context of the reference.
+   */
+  CXIdxContainerInfo* container;
+  /*
+   * Sets of symbol roles of the reference.
+   */
+  CXSymbolRole role;
+}
+
+module clang @private;
+
+def IndexerCallbackAbortQuery = fn CInt(
+  CXClientData client_data, 
+  void* reserved);
+
+def IndexerCallbackDiagnostic = fn void(
+  CXClientData client_data, 
+  CXDiagnosticSet ds, 
+  void* reserved);
+
+def IndexerCallbackEnteredMainFile = fn CXIdxClientFile(
+  CXClientData client_data, 
+  CXFile mainFile, 
+  void* reserved);
+
+def IndexerCallbackIncludedFile = fn CXIdxClientFile(
+  CXClientData client_data, 
+  CXIdxIncludedFileInfo* file_info);
+
+def IndexerCallbackImportedASTFile = fn CXIdxClientASTFile(
+  CXClientData client_data, 
+  CXIdxImportedASTFileInfo* file_info);
+
+def IndexerCallbackStartedTU = fn CXIdxClientContainer(
+  CXClientData client_data, 
+  void* reserved);
+
+def IndexerCallbackIndexDecl = fn void(
+  CXClientData client_data, 
+  CXIdxDeclInfo* decl_info);
+
+def IndexerCallbackIndexEntityRef = fn void(
+  CXClientData client_data, 
+  CXIdxEntityRefInfo* entity_ref_info);
+
+module clang @public;
+
+/**
+ * A group of callbacks used by #clang_indexSourceFile and
+ * #clang_indexTranslationUnit.
+ */
+struct IndexerCallbacks {
+  /*
+   * Called periodically to check whether indexing should be aborted.
+   * Should return 0 to continue, and non-zero to abort.
+   */
+  IndexerCallbackAbortQuery abort_query;
+
+  /*
+   * Called at the end of indexing; passes the complete diagnostic set.
+   */
+  IndexerCallbackDiagnostic diagnostic;
+
+  IndexerCallbackEnteredMainFile entered_main_file;
+
+  /*
+   * Called when a file gets \#included/\#imported.
+   */
+  IndexerCallbackIncludedFile pp_included_file;
+
+  /*
+   * Called when a AST file (PCH or module) gets imported.
+   *
+   * AST files will not get indexed (there will not be callbacks to index all
+   * the entities in an AST file). The recommended action is that, if the AST
+   * file is not already indexed, to initiate a new indexing job specific to
+   * the AST file.
+   */
+  IndexerCallbackImportedASTFile imported_ast_file;
+
+  /*
+   * Called at the beginning of indexing a translation unit.
+   */
+  IndexerCallbackStartedTU started_translation_unit;
+
+  IndexerCallbackIndexDecl index_declaration;
+
+  /*
+   * Called to index a reference of an entity.
+   */
+  IndexerCallbackIndexEntityRef index_entity_reference;
+}
+
+fn CInt index_isEntityObjCContainerKind(
+  CXIdxEntityKind entity_kind) 
+@extern("clang_index_isEntityObjCContainerKind");
+
+fn CXIdxObjCContainerDeclInfo* index_getObjCContainerDeclInfo(
+  CXIdxDeclInfo* decl_info) 
+@extern("clang_index_getObjCContainerDeclInfo");
+
+fn CXIdxObjCInterfaceDeclInfo* index_getObjCInterfaceDeclInfo(
+  CXIdxDeclInfo* decl_info) 
+@extern("clang_index_getObjCInterfaceDeclInfo");
+
+fn CXIdxObjCCategoryDeclInfo* index_getObjCCategoryDeclInfo(
+  CXIdxDeclInfo* decl_info) 
+@extern("clang_index_getObjCCategoryDeclInfo");
+
+fn CXIdxObjCProtocolRefListInfo* index_getObjCProtocolRefListInfo(
+  CXIdxDeclInfo* decl_info) 
+@extern("clang_index_getObjCProtocolRefListInfo");
+
+fn CXIdxObjCPropertyDeclInfo* index_getObjCPropertyDeclInfo(
+  CXIdxDeclInfo* decl_info) 
+@extern("clang_index_getObjCPropertyDeclInfo");
+
+fn CXIdxIBOutletCollectionAttrInfo* index_getIBOutletCollectionAttrInfo(
+  CXIdxAttrInfo* attr_info) 
+@extern("clang_index_getIBOutletCollectionAttrInfo");
+
+fn CXIdxCXXClassDeclInfo* index_getCXXClassDeclInfo(
+  CXIdxDeclInfo* decl_info) 
+@extern("clang_index_getCXXClassDeclInfo");
+
+/**
+ * For retrieving a custom CXIdxClientContainer attached to a
+ * container.
+ */
+fn CXIdxClientContainer index_getClientContainer(
+  CXIdxContainerInfo* container_info) 
+@extern("clang_index_getClientContainer");
+
+/**
+ * For setting a custom CXIdxClientContainer attached to a
+ * container.
+ */
+fn void index_setClientContainer(
+  CXIdxContainerInfo* container_info, 
+  CXIdxClientContainer client_container) 
+@extern("clang_index_setClientContainer");
+
+/**
+ * For retrieving a custom CXIdxClientEntity attached to an entity.
+ */
+fn CXIdxClientEntity index_getClientEntity(
+  CXIdxEntityInfo* entity_info) 
+@extern("clang_index_getClientEntity");
+
+/**
+ * For setting a custom CXIdxClientEntity attached to an entity.
+ */
+fn void index_setClientEntity(
+  CXIdxEntityInfo* entity_info, 
+  CXIdxClientEntity client_entity) 
+@extern("clang_index_setClientEntity");
+
+/**
+ * An indexing action/session, to be applied to one or multiple
+ * translation units.
+ */
+distinct CXIndexAction = inline void*;
+
+/**
+ * An indexing action/session, to be applied to one or multiple
+ * translation units.
+ *
+ * \param CIdx The index object with which the index action will be associated.
+ */
+fn CXIndexAction createIndexAction(
+  CXIndex cidx) 
+@extern("clang_IndexAction_create");
+
+/**
+ * Destroy the given index action.
+ *
+ * The index action must not be destroyed until all of the translation units
+ * created within that index action have been destroyed.
+ */
+fn void clang_IndexAction_dispose(CXIndexAction);
+
+distinct CXIndexOptFlags = inline CInt;
+/**
+ * Used to indicate that no special indexing options are needed.
+ */
+const CXIndexOptFlags INDEX_OPT_NONE = 0x0;
+
+/**
+ * Used to indicate that IndexerCallbacks#indexEntityReference should
+ * be invoked for only one reference of an entity per source file that does
+ * not also include a declaration/definition of the entity.
+ */
+const CXIndexOptFlags INDEX_OPT_SUPPRESS_REDUNDANT_REFS = 0x1;
+
+/**
+ * Function-local symbols should be indexed. If this is not set
+ * function-local symbols will be ignored.
+ */
+const CXIndexOptFlags INDEX_OPT_INDEX_FUNCTION_LOCAL_SYMBOLS = 0x2;
+
+/**
+ * Implicit function/class template instantiations should be indexed.
+ * If this is not set, implicit instantiations will be ignored.
+ */
+const CXIndexOptFlags INDEX_OPT_INDEX_IMPLICIT_TEMPLATE_INSTANTIATIONS = 0x4;
+
+/**
+ * Suppress all compiler warnings when parsing for indexing.
+ */
+const CXIndexOptFlags INDEX_OPT_SUPPRESS_WARNINGS = 0x8;
+
+/**
+ * Skip a function/method body that was already parsed during an
+ * indexing session associated with a \c CXIndexAction object.
+ * Bodies in system headers are always skipped.
+ */
+const CXIndexOptFlags INDEX_OPT_SKIP_PARSED_BODIES_IN_SESSION = 0x10;
+
+/**
+ * Index the given source file and the translation unit corresponding
+ * to that file via callbacks implemented through #IndexerCallbacks.
+ *
+ * \param client_data pointer data supplied by the client, which will
+ * be passed to the invoked callbacks.
+ *
+ * \param index_callbacks Pointer to indexing callbacks that the client
+ * implements.
+ *
+ * \param index_callbacks_size Size of #IndexerCallbacks structure that gets
+ * passed in index_callbacks.
+ *
+ * \param index_options A bitmask of options that affects how indexing is
+ * performed. This should be a bitwise OR of the CXIndexOpt_XXX flags.
+ *
+ * \param[out] out_TU pointer to store a \c CXTranslationUnit that can be
+ * reused after indexing is finished. Set to \c NULL if you do not require it.
+ *
+ * \returns 0 on success or if there were errors from which the compiler could
+ * recover.  If there is a failure from which there is no recovery, returns
+ * a non-zero \c CXErrorCode.
+ *
+ * The rest of the parameters are the same as #clang_parseTranslationUnit.
+ */
+fn CInt indexSourceFile(
+  CXIndexAction index_action, 
+  CXClientData client_data, 
+  IndexerCallbacks* index_callbacks, 
+  CUInt index_callbacks_size, 
+  CUInt index_options, 
+  ZString source_filename, 
+  ZString* command_line_args, 
+  CInt num_command_line_args, 
+  CXUnsavedFile* unsaved_files, 
+  CUInt num_unsaved_files, 
+  CXTranslationUnit* out_TU, 
+  CUInt tu_options) 
+@extern("clang_indexSourceFile");
+
+/**
+ * Same as clang_indexSourceFile but requires a full command line
+ * for \c command_line_args including argv[0]. This is useful if the standard
+ * library paths are relative to the binary.
+ */
+fn CInt indexSourceFileFullArgv(
+  CXIndexAction index_action, 
+  CXClientData client_data, 
+  IndexerCallbacks* index_callbacks, 
+  CUInt index_callbacks_size, 
+  CUInt index_options, 
+  ZString source_filename, 
+  ZString* command_line_args, 
+  CInt num_command_line_args, 
+  CXUnsavedFile* unsaved_files, 
+  CUInt num_unsaved_files, 
+  CXTranslationUnit* out_TU, 
+  CUInt tu_options) 
+@extern("clang_indexSourceFileFullArgv");
+
+/**
+ * Index the given translation unit via callbacks implemented through
+ * #IndexerCallbacks.
+ *
+ * The order of callback invocations is not guaranteed to be the same as
+ * when indexing a source file. The high level order will be:
+ *
+ *   -Preprocessor callbacks invocations
+ *   -Declaration/reference callbacks invocations
+ *   -Diagnostic callback invocations
+ *
+ * The parameters are the same as #clang_indexSourceFile.
+ *
+ * \returns If there is a failure from which there is no recovery, returns
+ * non-zero, otherwise returns 0.
+ */
+fn CInt indexTranslationUnit(
+  CXIndexAction index_action, 
+  CXClientData client_data, 
+  IndexerCallbacks* index_callbacks, 
+  CUInt index_callbacks_size, 
+  CUInt index_options, 
+  CXTranslationUnit tu) 
+@extern("clang_indexTranslationUnit");
+
+/**
+ * Retrieve the CXIdxFile, file, line, column, and offset represented by
+ * the given CXIdxLoc.
+ *
+ * If the location refers into a macro expansion, retrieves the
+ * location of the macro expansion and if it refers into a macro argument
+ * retrieves the location of the argument.
+ */
+fn void indexLoc_getFileLocation(
+  CXIdxLoc loc, 
+  CXIdxClientFile* indexFile, 
+  CXFile* file, 
+  CUInt* line, 
+  CUInt* column, 
+  CUInt* offset) 
+@extern("clang_indexLoc_getFileLocation");
+
+/**
+ * Retrieve the CXSourceLocation represented by the given CXIdxLoc.
+ */
+fn CXSourceLocation indexLoc_getCXSourceLocation(
+  CXIdxLoc loc) 
+@extern("clang_indexLoc_getCXSourceLocation");
+
+/**
+ * Visitor invoked for each field found by a traversal.
+ *
+ * This visitor function will be invoked for each field found by
+ * \c clang_Type_visitFields. Its first argument is the cursor being
+ * visited, its second argument is the client data provided to
+ * \c clang_Type_visitFields.
+ *
+ * The visitor should return one of the \c CXVisitorResult values
+ * to direct \c clang_Type_visitFields.
+ */
+def CXFieldVisitor = fn CXVisitorResult(
+  CXCursor c, 
+  CXClientData client_data);
+
+/**
+ * Visit the fields of a particular type.
+ *
+ * This function visits all the direct fields of the given cursor,
+ * invoking the given \p visitor function with the cursors of each
+ * visited field. The traversal may be ended prematurely, if
+ * the visitor returns \c CXFieldVisit_Break.
+ *
+ * \param T the record type whose field may be visited.
+ *
+ * \param visitor the visitor function that will be invoked for each
+ * field of \p T.
+ *
+ * \param client_data pointer data supplied by the client, which will
+ * be passed to the visitor each time it is invoked.
+ *
+ * \returns a non-zero value if the traversal was terminated
+ * prematurely by the visitor returning \c CXFieldVisit_Break.
+ */
+fn CUInt CXType.visitFields(
+  CXType t, 
+  CXFieldVisitor visitor, 
+  CXClientData client_data) 
+@extern("clang_Type_visitFields");
+
+/**
+ * Describes the kind of binary operators.
+ */
+distinct CXBinaryOperatorKind = inline CInt;
+
+/** This value describes cursors which are not binary operators. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_INVALID = 0;
+/** C++ Pointer - to - member operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_PTR_MEM_D = 1;
+/** C++ Pointer - to - member operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_PTR_MEM_I = 2;
+/** Multiplication operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_MUL = 3;
+/** Division operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_DIV = 4;
+/** Remainder operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_REM = 5;
+/** Addition operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_ADD = 6;
+/** Subtraction operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_SUB = 7;
+/** Bitwise shift left operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_SHL = 8;
+/** Bitwise shift right operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_SHR = 9;
+/** C++ three-way comparison (spaceship) operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_CMP = 10;
+/** Less than operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_LT = 11;
+/** Greater than operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_GT = 12;
+/** Less or equal operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_LE = 13;
+/** Greater or equal operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_GE = 14;
+/** Equal operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_EQ = 15;
+/** Not equal operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_NE = 16;
+/** Bitwise AND operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_AND = 17;
+/** Bitwise XOR operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_XOR = 18;
+/** Bitwise OR operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_OR = 19;
+/** Logical AND operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_LAND = 20;
+/** Logical OR operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_LOR = 21;
+/** Assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_ASSIGN = 22;
+/** Multiplication assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_MUL_ASSIGN = 23;
+/** Division assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_DIV_ASSIGN = 24;
+/** Remainder assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_REM_ASSIGN = 25;
+/** Addition assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_ADD_ASSIGN = 26;
+/** Subtraction assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_SUB_ASSIGN = 27;
+/** Bitwise shift left assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_SHL_ASSIGN = 28;
+/** Bitwise shift right assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_SHR_ASSIGN = 29;
+/** Bitwise AND assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_AND_ASSIGN = 30;
+/** Bitwise XOR assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_XOR_ASSIGN = 31;
+/** Bitwise OR assignment operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_OR_ASSIGN = 32;
+/** Comma operator. 
+  */
+const CXBinaryOperatorKind BINARY_OPERATOR_COMMA = 33;
+
+/**
+ * Retrieve the spelling of a given CXBinaryOperatorKind.
+ */
+fn CXString getBinaryOperatorKindSpelling(
+  CXBinaryOperatorKind kind) 
+@extern("clang_getBinaryOperatorKindSpelling");
+
+/**
+ * Retrieve the binary operator kind of this cursor.
+ *
+ * If this cursor is not a binary operator then returns Invalid.
+ */
+fn CXBinaryOperatorKind getCursorBinaryOperatorKind(
+  CXCursor cursor) 
+@extern("clang_getCursorBinaryOperatorKind");
+
+/**
+ * Describes the kind of unary operators.
+ */
+distinct CXUnaryOperatorKind = inline CInt;
+
+/** This value describes cursors which are not unary operators. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_INVALID = 0;
+/** Postfix increment operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_POST_INC = 1;
+/** Postfix decrement operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_POST_DEC = 2;
+/** Prefix increment operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_PRE_INC = 3;
+/** Prefix decrement operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_PRE_DEC = 4;
+/** Address of operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_ADDR_OF = 5;
+/** Dereference operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_DEREF = 6;
+/** Plus operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_PLUS = 7;
+/** Minus operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_MINUS = 8;
+/** Not operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_NOT = 9;
+/** LNot operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_LNOT = 10;
+/** "__real expr" operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_REAL = 11;
+/** "__imag expr" operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_IMAG = 12;
+/** __extension__ marker operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_EXTENSION = 13;
+/** C++ co_await operator. 
+  */
+const CXUnaryOperatorKind UNARY_OPERATOR_CO_AWAIT = 14;
+
+/**
+ * Retrieve the spelling of a given CXUnaryOperatorKind.
+ */
+fn CXString getUnaryOperatorKindSpelling(
+  CXUnaryOperatorKind kind) 
+@extern("clang_getUnaryOperatorKindSpelling");
+
+/**
+ * Retrieve the unary operator kind of this cursor.
+ *
+ * If this cursor is not a unary operator then returns Invalid.
+ */
+fn CXUnaryOperatorKind getCursorUnaryOperatorKind(
+  CXCursor cursor) 
+@extern("clang_getCursorUnaryOperatorKind");
+
+

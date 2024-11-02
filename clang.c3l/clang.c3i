@@ -994,6 +994,147 @@ fn CXString CXCompileCommand.getMappedSourceContent(
 
 /*-------------------------------*\
 |                                 |
+|       File BuildSystem.h        |
+|                                 |
+\*-------------------------------*/
+
+/**
+ * Return the timestamp for use with Clang's
+ * \c -fbuild-session-timestamp= option.
+ */
+fn CULongLong getBuildSessionTimestamp() 
+@extern("clang_getBuildSessionTimestamp");
+
+/**
+ * Object encapsulating information about overlaying virtual
+ * file/directories over the real file system.
+ */
+distinct CXVirtualFileOverlay = inline void*;
+
+/**
+ * Create a \c CXVirtualFileOverlay object.
+ * Must be disposed with \c clang_VirtualFileOverlay_dispose().
+ *
+ * \param options is reserved, always pass 0.
+ */
+fn CXVirtualFileOverlay createVirtualFileOverlay(
+  CUInt options) 
+@extern("clang_VirtualFileOverlay_create");
+
+/**
+ * Map an absolute virtual file path to an absolute real one.
+ * The virtual path must be canonicalized (not contain "."/"..").
+ * \returns 0 for success, non-zero to indicate an error.
+ */
+fn CXErrorCode CXVirtualFileOverlay.addFileMapping(
+  CXVirtualFileOverlay file_overlay, 
+  ZString virtual_path, 
+  ZString real_path) 
+@extern("clang_VirtualFileOverlay_addFileMapping");
+
+/**
+ * Set the case sensitivity for the \c CXVirtualFileOverlay object.
+ * The \c CXVirtualFileOverlay object is case-sensitive by default, this
+ * option can be used to override the default.
+ * \returns 0 for success, non-zero to indicate an error.
+ */
+fn CXErrorCode CXVirtualFileOverlay.setCaseSensitivity(
+  CXVirtualFileOverlay file_overaly, 
+  CInt case_sensitive) 
+@extern("clang_VirtualFileOverlay_setCaseSensitivity");
+
+/**
+ * Write out the \c CXVirtualFileOverlay object to a CChar buffer.
+ *
+ * \param options is reserved, always pass 0.
+ * \param out_buffer_ptr pointer to receive the buffer pointer, which should be
+ * disposed using \c clang_free().
+ * \param out_buffer_size pointer to receive the buffer size.
+ * \returns 0 for success, non-zero to indicate an error.
+ */
+fn CXErrorCode CXVirtualFileOverlay.writeToBuffer(
+  CXVirtualFileOverlay file_overaly, 
+  CUInt options, 
+  CChar** out_buffer_ptr, 
+  CUInt* out_buffer_size) 
+@extern("clang_VirtualFileOverlay_writeToBuffer");
+
+/**
+ * free memory allocated by libclang, such as the buffer returned by
+ * \c CXVirtualFileOverlay() or \c clang_ModuleMapDescriptor_writeToBuffer().
+ *
+ * \param buffer memory pointer to free.
+ */
+fn void free(
+  void* buffer) 
+@extern("clang_free");
+
+/**
+ * Dispose a \c CXVirtualFileOverlay object.
+ */
+fn void CXVirtualFileOverlay.dispose(
+  CXVirtualFileOverlay file_overlay) 
+@extern("clang_VirtualFileOverlay_dispose");
+
+/**
+ * Object encapsulating information about a module.modulemap file.
+ */
+distinct CXModuleMapDescriptor = inline void*;
+
+/**
+ * Create a \c CXModuleMapDescriptor object.
+ * Must be disposed with \c clang_ModuleMapDescriptor_dispose().
+ *
+ * \param options is reserved, always pass 0.
+ */
+fn CXModuleMapDescriptor createModuleMapDescriptor(
+  CUInt options) 
+@extern("clang_ModuleMapDescriptor_create");
+
+/**
+ * Sets the framework module name that the module.modulemap describes.
+ * \returns 0 for success, non-zero to indicate an error.
+ */
+fn CXErrorCode CXModuleMapDescriptor.setFrameworkModuleName(
+  CXModuleMapDescriptor descriptor, 
+  ZString name) 
+@extern("clang_ModuleMapDescriptor_setFrameworkModuleName");
+
+/**
+ * Sets the umbrella header name that the module.modulemap describes.
+ * \returns 0 for success, non-zero to indicate an error.
+ */
+fn CXErrorCode CXModuleMapDescriptor.setUmbrellaHeader(
+  CXModuleMapDescriptor descriptor, 
+  ZString name) 
+@extern("clang_ModuleMapDescriptor_setUmbrellaHeader");
+
+/**
+ * Write out the \c CXModuleMapDescriptor object to a CChar buffer.
+ *
+ * \param options is reserved, always pass 0.
+ * \param out_buffer_ptr pointer to receive the buffer pointer, which should be
+ * disposed using \c clang_free().
+ * \param out_buffer_size pointer to receive the buffer size.
+ * \returns 0 for success, non-zero to indicate an error.
+ */
+fn CXErrorCode CXModuleMapDescriptor.writeToBuffer(
+  CXModuleMapDescriptor descriptor, 
+  CUInt options, 
+  CChar** out_buffer_ptr, 
+  CUInt* out_buffer_size) 
+@extern("clang_ModuleMapDescriptor_writeToBuffer");
+
+/**
+ * Dispose a \c CXModuleMapDescriptor object.
+ */
+fn void CXModuleMapDescriptor.dispose(
+  CXModuleMapDescriptor descriptor) 
+@extern("clang_ModuleMapDescriptor_dispose");
+
+
+/*-------------------------------*\
+|                                 |
 |          File Index.h           |
 |                                 |
 \*-------------------------------*/
@@ -1175,7 +1316,7 @@ const CXCursor_ExceptionSpecificationKind CURSOR_EXCEPTION_SPECIFICATION_KIND_NO
  *
  *   // This will load all the symbols from 'IndexTest.c', excluding symbols
  *   // from 'IndexTest.pch'.
- *   char *args[] = { "-Xclang", "-include-pch=IndexTest.pch" };
+ *   CChar *args[] = { "-Xclang", "-include-pch=IndexTest.pch" };
  *   TU = clang_createTranslationUnitFromSourceFile(Idx, "IndexTest.c", 2, args,
  *                                                  0, 0);
  *   clang_visitChildren(clang_getTranslationUnitCursor(TU),
@@ -1282,13 +1423,13 @@ struct CXIndexOptions {
    * A CXChoice enumerator that specifies the indexing priority policy.
    * \sa CXGlobalOpt_ThreadBackgroundPriorityForIndexing
    */
-  char thread_background_priority_for_indexing;
+  CChar thread_background_priority_for_indexing;
 
   /*
    * A CXChoice enumerator that specifies the editing priority policy.
    * \sa CXGlobalOpt_ThreadBackgroundPriorityForEditing
    */
-  char thread_background_priority_for_editing;
+  CChar thread_background_priority_for_editing;
 
   bitstruct : ushort {
     /*

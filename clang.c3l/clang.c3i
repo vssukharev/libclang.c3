@@ -1590,7 +1590,7 @@ fn CUInt isParamPositionValidTParamCommandComment(
  * For example,
  * \verbatim
  *     template<typename C, template<typename T> class TT>
- *     void test(TT<int> aaa);
+ *     void test(TT<CInt> aaa);
  * \endverbatim
  * for C and TT nesting depth is 0,
  * for T nesting depth is 1.
@@ -1608,7 +1608,7 @@ fn CUInt getDepthTParamCommandComment(
  * For example,
  * \verbatim
  *     template<typename C, template<typename T> class TT>
- *     void test(TT<int> aaa);
+ *     void test(TT<CInt> aaa);
  * \endverbatim
  * for C and TT nesting depth is 0, so we can ask for index at depth 0:
  * at depth 0 C's index is 0, TT's index is 1.
@@ -1771,6 +1771,93 @@ fn CXString getSymbolGraphForUSR(
 fn CXString getSymbolGraphForCursor(
   CXCursor cursor) 
 @extern("clang_getSymbolGraphForCursor");
+
+
+/*-------------------------------*\
+|                                 |
+|     File FatalErrorHandler.h    |
+|                                 |
+\*-------------------------------*/
+
+/**
+ * Installs error handler that prints error message to stderr and calls abort().
+ * Replaces currently installed error handler (if any).
+ */
+fn void installAbortingLLVMFatalErrorHandler() 
+@extern("clang_install_aborting_llvm_fatal_error_handler");
+
+/**
+ * Removes currently installed error handler (if any).
+ * If no error handler is intalled, the default strategy is to print error
+ * message to stderr and call exit(1).
+ */
+fn void uninstallLLVMFatalErrorHandler() 
+@extern("clang_uninstall_llvm_fatal_error_handler");
+
+
+/*-------------------------------*\
+|                                 |
+|          File Index.h           |
+|                                 |
+\*-------------------------------*/
+
+distinct CXRewriter = void*;
+
+/**
+ * Create CXRewriter.
+ */
+fn CXRewriter createRewriter(
+  CXTranslationUnit tu) 
+@extern("clang_CXRewriter_create");
+
+/**
+ * Insert the specified string at the specified location in the original buffer.
+ */
+fn void CXRewriter.insertTextBefore(
+  CXRewriter rew, 
+  CXSourceLocation loc, 
+  ZString insert) 
+@extern("clang_CXRewriter_insertTextBefore");
+
+/**
+ * Replace the specified range of characters in the input with the specified
+ * replacement.
+ */
+fn void CXRewriter.replaceText(
+  CXRewriter rew, 
+  CXSourceRange to_be_replaced, 
+  ZString replacement) 
+@extern("clang_CXRewriter_replaceText");
+
+/**
+ * Remove the specified range.
+ */
+fn void CXRewriter.removeText(
+  CXRewriter rew, 
+  CXSourceRange to_be_removed) 
+@extern("clang_CXRewriter_removeText");
+
+/**
+ * Save all changed files to disk.
+ * Returns 1 if any files were not saved successfully, returns 0 otherwise.
+ */
+fn CInt CXRewriter.overwriteChangedFiles(
+  CXRewriter rew) 
+@extern("clang_CXRewriter_overwriteChangedFiles");
+
+/**
+ * Write out rewritten version of the main file to stdout.
+ */
+fn void CXRewriter.writeMainFileToStdOut(
+  CXRewriter rew) 
+@extern("clang_CXRewriter_writeMainFileToStdOut");
+
+/**
+ * Free the given CXRewriter.
+ */
+fn void CXRewriter.dispose(
+  CXRewriter rew) 
+@extern("clang_CXRewriter_dispose");
 
 
 /*-------------------------------*\

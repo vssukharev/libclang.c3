@@ -21,7 +21,7 @@ Then you need to modify your `project.json`:
 }
 ```
 
-Simply do `c3c run` to check whether everything is fine (make sure to have `glfw` installed on your system).
+Simply do `c3c run` to check whether everything is fine (make sure to have `libclang` installed on your system).
 
 
 ## Translation Rules

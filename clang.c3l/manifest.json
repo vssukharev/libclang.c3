@@ -2,7 +2,7 @@
   "provides": "clang",
   "targets": {
     "linux-x64": {
-      "link-args": [ "-lclang" ],
+      "link-args": [ ],
       "dependencies": [  ],
       "linked-libraries": [ "clang" ]
     },

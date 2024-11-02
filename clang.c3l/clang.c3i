@@ -1,5 +1,6 @@
 
 module clang;
+import libc; // for Time_t
 
 /*-------------------------------*\
 |                                 |
@@ -96,8 +97,6 @@ fn void disposeStringSet(
 |          File CXFile.h          |
 |                                 |
 \*-------------------------------*/
-// Import for Time_t
-import libc; 
 
 /**
  * A particular source file that is part of a translation unit.
@@ -136,7 +135,7 @@ struct CXFileUniqueID {
  */
 fn CInt getFileUniqueID(
   CXFile file, 
-  CXFileUniqueID* outID) 
+  CXFileUniqueID* out_id) 
 @extern("clang_getFileUniqueID");
 
 /**
@@ -278,10 +277,10 @@ fn CInt CXSourceRange.isNull(
  */
 fn void getExpansionLocation(
   CXSourceLocation location, 
-  CXFile *file, 
-  CUInt *line, 
-  CUInt *column, 
-  CUInt *offset) 
+  CXFile* file, 
+  CUInt* line, 
+  CUInt* column, 
+  CUInt* offset) 
 @extern("clang_getExpansionLocation");
 
 /**
@@ -371,10 +370,10 @@ fn void getInstantiationLocation(
  */
 fn void getSpellingLocation(
   CXSourceLocation location, 
-  CXFile *file, 
-  CUInt *line, 
-  CUInt *column, 
-  CUInt *offset) 
+  CXFile* file, 
+  CUInt* line, 
+  CUInt* column, 
+  CUInt* offset) 
 @extern("clang_getSpellingLocation");
 
 /**
@@ -402,10 +401,10 @@ fn void getSpellingLocation(
  */
 fn void getFileLocation(
   CXSourceLocation location, 
-  CXFile *file, 
-  CUInt *line, 
-  CUInt *column, 
-  CUInt *offset) 
+  CXFile* file, 
+  CUInt* line, 
+  CUInt* column, 
+  CUInt* offset) 
 @extern("clang_getFileLocation");
 
 /**
@@ -440,7 +439,7 @@ struct CXSourceRangeList {
  * Destroy the given \c CXSourceRangeList.
  */
 fn void disposeSourceRangeList(
-  CXSourceRangeList *ranges) 
+  CXSourceRangeList* ranges) 
 @extern("clang_disposeSourceRangeList");
 
 

@@ -2831,14 +2831,14 @@ fn CInt saveTranslationUnit(
  * to resume it or \c clang_disposeTranslationUnit to dispose it completely.
  */
 fn CUInt suspendTranslationUnit(
-  CXTranslationUnit)
+  CXTranslationUnit tu)
 @extern("clang_suspendTranslationUnit");
 
 /**
  * Destroy the specified CXTranslationUnit object.
  */
 fn void disposeTranslationUnit(
-  CXTranslationUnit) 
+  CXTranslationUnit tu) 
 @extern("clang_disposeTranslationUnit");
 
 /**
@@ -7988,7 +7988,7 @@ distinct CXVisitorResult = inline CInt;
 const CXVisitorResult VISIT_BREAK = 0;
 const CXVisitorResult VISIT_CONTINUE = 1;
 
-def _CXCursorAndRangeVisitor = fn CXVisitorResult(void *context, CXCursor, CXSourceRange) @private;
+def _CXCursorAndRangeVisitor = fn CXVisitorResult(void *context, CXCursor, CXSourceRange);
 struct CXCursorAndRangeVisitor {
   void* context;
   _CXCursorAndRangeVisitor visit;
@@ -8388,37 +8388,37 @@ struct CXIdxEntityRefInfo {
 
 module clang @private;
 
-def IndexerCallbackAbortQuery = fn CInt(
+def _IndexerCallbackAbortQuery = fn CInt(
   CXClientData client_data, 
   void* reserved);
 
-def IndexerCallbackDiagnostic = fn void(
+def _IndexerCallbackDiagnostic = fn void(
   CXClientData client_data, 
   CXDiagnosticSet ds, 
   void* reserved);
 
-def IndexerCallbackEnteredMainFile = fn CXIdxClientFile(
+def _IndexerCallbackEnteredMainFile = fn CXIdxClientFile(
   CXClientData client_data, 
   CXFile mainFile, 
   void* reserved);
 
-def IndexerCallbackIncludedFile = fn CXIdxClientFile(
+def _IndexerCallbackIncludedFile = fn CXIdxClientFile(
   CXClientData client_data, 
   CXIdxIncludedFileInfo* file_info);
 
-def IndexerCallbackImportedASTFile = fn CXIdxClientASTFile(
+def _IndexerCallbackImportedASTFile = fn CXIdxClientASTFile(
   CXClientData client_data, 
   CXIdxImportedASTFileInfo* file_info);
 
-def IndexerCallbackStartedTU = fn CXIdxClientContainer(
+def _IndexerCallbackStartedTU = fn CXIdxClientContainer(
   CXClientData client_data, 
   void* reserved);
 
-def IndexerCallbackIndexDecl = fn void(
+def _IndexerCallbackIndexDecl = fn void(
   CXClientData client_data, 
   CXIdxDeclInfo* decl_info);
 
-def IndexerCallbackIndexEntityRef = fn void(
+def _IndexerCallbackIndexEntityRef = fn void(
   CXClientData client_data, 
   CXIdxEntityRefInfo* entity_ref_info);
 
@@ -8433,19 +8433,19 @@ struct IndexerCallbacks {
    * Called periodically to check whether indexing should be aborted.
    * Should return 0 to continue, and non-zero to abort.
    */
-  IndexerCallbackAbortQuery abort_query;
+  _IndexerCallbackAbortQuery abort_query;
 
   /*
    * Called at the end of indexing; passes the complete diagnostic set.
    */
-  IndexerCallbackDiagnostic diagnostic;
+  _IndexerCallbackDiagnostic diagnostic;
 
-  IndexerCallbackEnteredMainFile entered_main_file;
+  _IndexerCallbackEnteredMainFile entered_main_file;
 
   /*
    * Called when a file gets \#included/\#imported.
    */
-  IndexerCallbackIncludedFile pp_included_file;
+  _IndexerCallbackIncludedFile pp_included_file;
 
   /*
    * Called when a AST file (PCH or module) gets imported.
@@ -8455,19 +8455,19 @@ struct IndexerCallbacks {
    * file is not already indexed, to initiate a new indexing job specific to
    * the AST file.
    */
-  IndexerCallbackImportedASTFile imported_ast_file;
+  _IndexerCallbackImportedASTFile imported_ast_file;
 
   /*
    * Called at the beginning of indexing a translation unit.
    */
-  IndexerCallbackStartedTU started_translation_unit;
+  _IndexerCallbackStartedTU started_translation_unit;
 
-  IndexerCallbackIndexDecl index_declaration;
+  _IndexerCallbackIndexDecl index_declaration;
 
   /*
    * Called to index a reference of an entity.
    */
-  IndexerCallbackIndexEntityRef index_entity_reference;
+  _IndexerCallbackIndexEntityRef index_entity_reference;
 }
 
 fn CInt index_isEntityObjCContainerKind(
@@ -8556,7 +8556,9 @@ fn CXIndexAction createIndexAction(
  * The index action must not be destroyed until all of the translation units
  * created within that index action have been destroyed.
  */
-fn void clang_IndexAction_dispose(CXIndexAction);
+fn void dispose_IndexAction(
+  CXIndexAction cidx) 
+@extern("clang_IndexAction_dispose");
 
 distinct CXIndexOptFlags = inline CInt;
 /**

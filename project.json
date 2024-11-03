@@ -2,13 +2,17 @@
   "warnings":  [ "no-unused" ],
   "dependency-search-paths":  [ "." ],
   "dependencies":  [ "clang" ],
-  "sources":  [ "examples/**" ],
   "output": "build",
   "targets": {
-    "main": {
+    "nodes": {
       "type": "executable",
-      "sources": [ "examples/main.c3" ],
-    }
+      "sources": [ "examples/nodes.c3" ],
+    },
+
+    "diagnostics": {
+      "type": "executable",
+      "sources": [ "examples/diagnostics.c3" ],
+    },
   },
   "opt": "O0"
 }

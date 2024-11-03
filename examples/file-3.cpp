@@ -1,6 +1,6 @@
 
 struct A {
-  int value;
+  do value;
 };
 
 struct B {

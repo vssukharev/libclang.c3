@@ -513,7 +513,8 @@ fn CUInt getNumDiagnosticsInSet(
  * via a call to \c clang_disposeDiagnostic().
  */
 fn CXDiagnostic getDiagnosticInSet(
-  CXDiagnosticSet diags, CUInt index) 
+  CXDiagnosticSet diags, 
+  CUInt index) 
 @extern("clang_getDiagnosticInSet");
 
 /**
@@ -626,7 +627,7 @@ const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_COLUMN = 0x02;
  * This option corresponds to the clang flag
  * \c -fdiagnostics-print-source-range-info.
  */
-const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAYSOURCERANGES = 0x04;
+const CXDiagnosticDisplayOptions DIAGNOSTIC_DISPLAY_SOURCE_RANGES = 0x04;
 
 /**
  * Display the option name associated with this diagnostic, if any.
@@ -2259,9 +2260,23 @@ fn CXIndex createIndexWithOptions(
  * \param options A bitmask of options, a bitwise OR of CXGlobalOpt_XXX flags.
  */
 fn void setGlobalOptions_Index(
-  CXIndex self,
+  CXIndex index,
   CUInt options) 
-@extern("clang_CXIndex_setGlobalOptions");
+@extern("clang_CXIndex_setGlobalOptions")
+@deprecated("Set CXIndexOptions::ThreadBackgroundPriorityForIndexing and/or CXIndexOptions::ThreadBackgroundPriorityForEditing and call clang_createIndexWithOptions() instead.");
+
+/**
+ * Gets the general options associated with a CXIndex.
+ *
+ * This function allows to obtain the final option values used by libclang after
+ * specifying the option policies via CXChoice enumerators.
+ *
+ * \returns A bitmask of options, a bitwise OR of CXGlobalOpt_XXX flags that
+ * are associated with the given CXIndex object.
+ */
+fn CUInt getGlobalOptions_Index(
+  CXIndex index)
+@extern("clang_CXIndex_getGlobalOptions");
 
 /**
  * Sets the invocation emission path option in a CXIndex.
@@ -2276,7 +2291,8 @@ fn void setGlobalOptions_Index(
 fn void setInvocationEmissionPathOption_Index(
   CXIndex self, 
   ZString path) 
-@extern("clang_CXIndex_setInvocationEmissionPathOption");
+@extern("clang_CXIndex_setInvocationEmissionPathOption")
+@deprecated("Set CXIndexOptions::InvocationEmissionPath and call clang_createIndexWithOptions() instead.");
 
 /**
  * Determine whether the given header is guarded against
@@ -2629,7 +2645,8 @@ const CXTranslationUnit_Flags TRANSLATION_UNIT_RETAIN_EXCLUDED_CONDITIONAL_BLOCK
  * preamble) geared toward improving the performance of these routines. The
  * set of optimizations enabled may change from one version to the next.
  */
-fn CUInt defaultEditingTranslationUnitOptions() @extern("clang_defaultEditingTranslationUnitOptions");
+fn CUInt defaultEditingTranslationUnitOptions() 
+@extern("clang_defaultEditingTranslationUnitOptions");
 
 /**
  * Same as \c clang_parseTranslationUnit2, but returns
@@ -2638,7 +2655,7 @@ fn CUInt defaultEditingTranslationUnitOptions() @extern("clang_defaultEditingTra
  * error codes.
  */
 fn CXTranslationUnit parseTranslationUnit(
-  CXIndex c_idx, 
+  CXIndex cidx, 
   ZString source_filename, 
   ZString* command_line_args, 
   CInt num_command_line_args, 
@@ -2814,7 +2831,7 @@ fn CInt saveTranslationUnit(
  * to resume it or \c clang_disposeTranslationUnit to dispose it completely.
  */
 fn CUInt suspendTranslationUnit(
-  CXTranslationUnit) 
+  CXTranslationUnit)
 @extern("clang_suspendTranslationUnit");
 
 /**

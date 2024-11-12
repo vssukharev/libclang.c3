@@ -883,7 +883,7 @@ const CXCompilationDatabase_Error COMPILATION_DATABASE_CAN_NOT_LOAD_DATA_BASE = 
  *
  * It must be freed by \c clang_CompilationDatabase_dispose.
  */
-fn CXCompilationDatabase fromDirectoryCompilationDatabase(
+fn CXCompilationDatabase fromDirectory_CompilationDatabase(
   ZString build_dir, 
   CXCompilationDatabase_Error* error_code) 
 @extern("clang_CompilationDatabase_fromDirectory");
@@ -2162,17 +2162,17 @@ struct CXIndexOptions {
     /*
      * \see clang_createIndex()
      */
-    bool exclude_declarations_from_pch : 0;
+    bool exclude_declarations_from_pch;
 
     /*
      * \see clang_createIndex()
      */
-    bool display_diagnostics : 1;
+    bool display_diagnostics;
 
     /*
      * Store PCH in memory. If zero, PCH are stored in temporary files.
      */
-    bool store_preambles_in_memory : 2;
+    bool store_preambles_in_memory;
   }
 
   /*
@@ -7817,7 +7817,7 @@ fn void toggleCrashRecovery(
  */
 def CXInclusionVisitor = fn void(
   CXFile included_file,
-  CXSourceLocation *inclusion_stack,
+  CXSourceLocation* inclusion_stack,
   CUInt include_len,
   CXClientData client_data);
 

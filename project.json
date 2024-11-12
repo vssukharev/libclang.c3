@@ -6,12 +6,12 @@
   "targets": {
     "nodes": {
       "type": "executable",
-      "sources": [ "examples/nodes.c3" ],
+      "sources": [ "resources/examples/nodes.c3" ],
     },
 
     "diagnostics": {
       "type": "executable",
-      "sources": [ "examples/diagnostics.c3" ],
+      "sources": [ "resoursec/examples/diagnostics.c3" ],
     },
   },
   "opt": "O0"

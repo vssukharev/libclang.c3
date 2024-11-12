@@ -1,7 +1,9 @@
-{ pkgs ? import <nixpkgs> {} }: with pkgs; 
+{ 
+  mkShell,
+  libclang,
+  c3c,
+}:
 mkShell {
-  shellHook = ''zsh'';
-  
   buildInputs = [
     c3c
     libclang.lib

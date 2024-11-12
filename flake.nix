@@ -4,15 +4,16 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    c3c.url = "github:c3lang/c3c";
   };
 
-  outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system: 
+  outputs = { self, ... } @ inputs: inputs.flake-utils.lib.eachDefaultSystem (system: 
     let 
-      pkgs = import nixpkgs { inherit system; };
+      pkgs = import inputs.nixpkgs { inherit system; };
+      c3c = inputs.c3c.packages.${system}.default;
     in 
     {
-      legacyPackages = pkgs;
-      devShells.default = import ./shell.nix { inherit pkgs; };
+      devShells.default = pkgs.callPackage ./shell.nix { inherit c3c; };
     }
   );
 }
